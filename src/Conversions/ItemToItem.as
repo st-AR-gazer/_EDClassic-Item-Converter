@@ -7,7 +7,7 @@ namespace ItemToItem {
     int totalItemsConverted = 0;
 
     void Init() {
-        log("Initializing ItemToItem.", LogLevel::Info, 3, "BlockToItem::Init");
+        log("Initializing ItemToItem.", LogLevel::Info, 10, "Init");
 
         utils = Utils();
         conv = Conversion();
@@ -16,7 +16,7 @@ namespace ItemToItem {
     }
 
     void ConversionPreparation() {
-        log("Converting item to item.", LogLevel::Info, 3, "ConvertItemToItem");
+        log("Converting item to item.", LogLevel::Info, 19, "ConversionPreparation");
 
         CGameCtnApp app = GetApp();
         CGameCtnEditorCommon editor = cast<CGameCtnEditorCommon@>(app.Editor);
@@ -36,31 +36,31 @@ namespace ItemToItem {
             } else {
                 auto ana = cast<CGameCtnArticleNodeArticle@>(node);
                 if (ana.Article is null || ana.Article.IdName.ToLower().EndsWith("customitem")) {
-                    log("Skipping item " + ana.Name + " because it's a custom item.", LogLevel::Info, 3, "ExploreNode");
+                    log("Skipping item " + ana.Name + " because it's a custom item.", LogLevel::Info, 39, "ExploreNode");
                     continue;
                 }
                 string itemSaveLocation = "VanillaItemToCustomItem/" + folder + ana.Name + ".Item.Gbx";
                 totalItemsConverted++;
-                log("Converting item " + ana.Name + " to item.", LogLevel::Info, 3, "ExploreNode");
+                log("Converting item " + ana.Name + " to item.", LogLevel::Info, 44, "ExploreNode");
                 string fullItemSaveLocation = IO::FromUserGameFolder("Items/" + itemSaveLocation); // Changed to "Items/" for items
 
                 if (IO::FileExists(fullItemSaveLocation)) {
-                    log("Item " + itemSaveLocation + " already exists. Skipping.", LogLevel::Info, 3, "ExploreNode");
+                    log("Item " + itemSaveLocation + " already exists. Skipping.", LogLevel::Info, 48, "ExploreNode");
                 } else {
                     auto item = cast<CGameCtnBlockInfo@>(ana.Article.LoadedNod);
 
                     if (item is null) {
-                        log("Item " + ana.Name + " is null. Skipping.", LogLevel::Info, 3, "ExploreNode");
+                        log("Item " + ana.Name + " is null. Skipping.", LogLevel::Info, 53, "ExploreNode");
                         continue;
                     }
 
                     if (string(item.Name).ToLower().Contains("water")) {
-                        log("Water cannot be converted to a custom block/item. Skipping.", LogLevel::Info, 3, "ExploreNode");
+                        log("Water cannot be converted to a custom block/item. Skipping.", LogLevel::Info, 58, "ExploreNode");
                         continue;
                     }
 
                     if (utils.IsBlacklisted(item.Name)) {
-                        log("Item " + item.Name + " is blacklisted. Skipping.", LogLevel::Info, 3, "ExploreNode");
+                        log("Item " + item.Name + " is blacklisted. Skipping.", LogLevel::Info, 63, "ExploreNode");
                         continue;
                     }
 

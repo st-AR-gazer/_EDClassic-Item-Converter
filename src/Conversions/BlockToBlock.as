@@ -7,7 +7,7 @@ namespace BlockToBlock {
     int totalBlocksConverted = 0;
 
     void Init() {
-        log("Initializing BlockToBlock.", LogLevel::Info, 3, "BlockToItem::Init");
+        log("Initializing BlockToBlock.", LogLevel::Info, 10, "Init");
 
         utils = Utils();
         conv = Conversion();
@@ -16,7 +16,7 @@ namespace BlockToBlock {
     }
 
     void ConversionPreparation() {
-        log("Converting block to block.", LogLevel::Info, 3, "ConvertBlockToItem");
+        log("Converting block to block.", LogLevel::Info, 19, "ConversionPreparation");
         
         CGameCtnApp app = GetApp();
         CGameCtnEditorCommon editor = cast<CGameCtnEditorCommon@>(app.Editor);
@@ -36,36 +36,36 @@ namespace BlockToBlock {
             } else {
                 auto ana = cast<CGameCtnArticleNodeArticle@>(node);
                 if (ana.Article is null || ana.Article.IdName.ToLower().EndsWith("customblock")) {
-                    log("Skipping block " + ana.Name + " because it's a custom block.", LogLevel::Info, 3, "ExploreNode");
+                    log("Skipping block " + ana.Name + " because it's a custom block.", LogLevel::Info, 39, "ExploreNode");
                     continue;
                 }
                 string blockSaveLocation = "VanillaBlockToCustomBlock/" + folder + ana.Name + ".Block.Gbx";
                 totalBlocksConverted++;
-                log("Converting block " + ana.Name + " to block.", LogLevel::Info, 3, "ExploreNode");
+                log("Converting block " + ana.Name + " to block.", LogLevel::Info, 44, "ExploreNode");
                 string fullBlockSaveLocation = IO::FromUserGameFolder("Blocks/" + blockSaveLocation); // Changed to "Block/" for blocks
 
                 if (IO::FileExists(fullBlockSaveLocation)) {
-                    log("Block " + blockSaveLocation + " already exists. Skipping.", LogLevel::Info, 3, "ExploreNode");
+                    log("Block " + blockSaveLocation + " already exists. Skipping.", LogLevel::Info, 48, "ExploreNode");
                 } else {
                     auto block = cast<CGameCtnBlockInfo@>(ana.Article.LoadedNod);
 
                     if (block is null) {
-                        log("Block " + ana.Name + " is null. Skipping.", LogLevel::Info, 3, "ExploreNode");
+                        log("Block " + ana.Name + " is null. Skipping.", LogLevel::Info, 53, "ExploreNode");
                         continue;
                     }
 
                     if (string(block.Name).ToLower().Contains("water")) {
-                        log("Water cannot be converted to a custom block/item. Skipping.", LogLevel::Info, 3, "ExploreNode");
+                        log("Water cannot be converted to a custom block/item. Skipping.", LogLevel::Info, 58, "ExploreNode");
                         continue;
                     }
 
                     if (utils.IsBlacklisted(block.Name)) {
-                        log("Block " + block.Name + " is blacklisted. Skipping.", LogLevel::Info, 3, "ExploreNode");
+                        log("Block " + block.Name + " is blacklisted. Skipping.", LogLevel::Info, 63, "ExploreNode");
                         continue;
                     }
 
-                    log("Converting block " + block.Name + " to item.", LogLevel::Info, 3, "ExploreNode");
-                    log("Saving block to " + blockSaveLocation, LogLevel::Info, 3, "ExploreNode");
+                    log("Converting block " + block.Name + " to item.", LogLevel::Info, 67, "ExploreNode");
+                    log("Saving block to " + blockSaveLocation, LogLevel::Info, 68, "ExploreNode");
                     
                     conv.ConvertBlockToBlock(block, blockSaveLocation);
                 }
@@ -78,7 +78,7 @@ namespace BlockToBlock {
         int2 button_DirectionIcon = int2(0, 0);
 
         void ConvertBlockToBlock(CGameCtnBlockInfo@ blockInfo, string blockSaveLocation) {
-            log("Converting block to block.", LogLevel::Info, 3, "ConvertBlockToBlock");
+            log("Converting block to block.", LogLevel::Info, 81, "ConvertBlockToBlock");
 
             CGameCtnApp app = GetApp();
             CGameCtnEditorCommon editor = cast<CGameCtnEditorCommon@>(app.Editor);
@@ -97,7 +97,7 @@ namespace BlockToBlock {
             yield();
 
             int nBlocks = pmt.Blocks.Length;
-            log("Starting to place the block: " + blockInfo.Name, LogLevel::Info, 3, "ConvertBlockToBlock");
+            log("Starting to place the block: " + blockInfo.Name, LogLevel::Info, 100, "ConvertBlockToBlock");
             while (pmt.Blocks.Length == nBlocks) {
                 mouse.Click();
                 yield();
@@ -112,7 +112,7 @@ namespace BlockToBlock {
             while (cast<CGameEditorItem>(app.Editor) is null) {
                 @editor = cast<CGameCtnEditorCommon@>(app.Editor);
                 if (editor !is null && editor.PickedBlock !is null && editor.PickedBlock.BlockInfo.Name == blockInfo.Name) {
-                    log("Clicking to confirm the selection.", LogLevel::Info, 3, "ConvertBlockToBlock");
+                    log("Clicking to confirm the selection.", LogLevel::Info, 115, "ConvertBlockToBlock");
                     mouse.Click();
                 }
                 yield();
@@ -125,17 +125,17 @@ namespace BlockToBlock {
             editorItem.PlacementParamGridVerticalSize = 8;
             editorItem.PlacementParamFlyStep = 8;
 
-            log("Clicking the button to set the icon.", LogLevel::Info, 3, "ConvertBlockToItem");
+            log("Clicking the button to set the icon.", LogLevel::Info, 128, "ConvertBlockToBlock");
             mouse.Click(button_Icon);
 
             yield();
 
-            log("Clicking the button to set the direction icon.", LogLevel::Info, 3, "ConvertBlockToItem");
+            log("Clicking the button to set the direction icon.", LogLevel::Info, 133, "ConvertBlockToBlock");
             mouse.Click(button_DirectionIcon);
 
             yield();
 
-            log("Saving block to " + blockSaveLocation, LogLevel::Info, 3, "ConvertBlockToItem");
+            log("Saving block to " + blockSaveLocation, LogLevel::Info, 138, "ConvertBlockToBlock");
             editorItem.FileSaveAs(blockSaveLocation);
 
             yield();
