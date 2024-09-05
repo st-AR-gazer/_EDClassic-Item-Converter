@@ -4,7 +4,17 @@ void InitBlockedArrays() {
 }
 
 
-/* /////////////////////////////////   Blocked Items List   ///////////////////////////////// */
+/* /////////////////////////////////   Blocked BlockToBlock List   ///////////////////////////////// */
+
+
+string[] blockToBlockBlacklist;
+
+void InitBlockToBlockArray() {
+
+}
+
+
+/* /////////////////////////////////   Blocked BlockToItems List   ///////////////////////////////// */
 
 
 string[] blockToItemBlacklist;
@@ -56,11 +66,10 @@ void InitBlockToItemArray() {
 }
 
 
-/* /////////////////////////////////   Blocked Blocks List   ///////////////////////////////// */
+/* /////////////////////////////////   Blocked ItemsToItems List   ///////////////////////////////// */
 
+string[] itemToItemBlacklist;
 
-string[] blockToBlockBlacklist;
-
-void InitBlockToBlockArray() {
+void InitItemToItemArray() {
 
 }
