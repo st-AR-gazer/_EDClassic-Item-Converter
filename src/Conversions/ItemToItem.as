@@ -18,28 +18,28 @@ namespace ItemToItem {
     void ConversionPreparation() {
         log("Converting item to item.", LogLevel::Info, 19, "ConversionPreparation");
 
-        CGameCtnApp app = GetApp();
-        CGameCtnEditorCommon editor = cast<CGameCtnEditorCommon@>(app.Editor);
-        CGameEditorPluginMapMapType pmt = editor.PluginMapType;
-        CGameEditorGenericInventory inventory = pmt.Inventory;
+        CGameCtnApp@ app = GetApp();
+        CGameCtnEditorCommon@ editor = cast<CGameCtnEditorCommon@>(app.Editor);
+        CGameEditorPluginMapMapType@ pmt = editor.PluginMapType;
+        CGameEditorGenericInventory@ inventory = pmt.Inventory;
 
-        CGameCtnArticleNodeDirectory itemsNode = cast<CGameCtnArticleNodeDirectory@>(inventory.RootNodes[1]); // set to 1 as 0 is the blocks node // Must be tested if it is correct though xdd
+        CGameCtnArticleNodeDirectory@ itemsNode = cast<CGameCtnArticleNodeDirectory@>(inventory.RootNodes[1]); // set to 1 as 0 is the blocks node // Must be tested if it is correct though xdd
         totalItems = utils.CountBlocks(itemsNode);
         ExploreNode(itemsNode);
     }
 
-    void ExploreNode(CGameCtnArticleNodeDirectory@ parentNode, string folder = "") {
+    void ExploreNode(CGameCtnArticleNodeDirectory@ parentNode, string _folder = "") {
         for (uint i = 0; i < parentNode.ChildNodes.Length; i++) {
-            CGameCtnArticleNode node = parentNode.ChildNodes[i];
+            CGameCtnArticleNode@ node = parentNode.ChildNodes[i];
             if (node.IsDirectory) {
-                ExploreNode(cast<CGameCtnArticleNodeDirectory@>(node), folder + node.Name + "/");
+                ExploreNode(cast<CGameCtnArticleNodeDirectory@>(node), _folder + node.Name + "/");
             } else {
                 auto ana = cast<CGameCtnArticleNodeArticle@>(node);
                 if (ana.Article is null || ana.Article.IdName.ToLower().EndsWith("customitem")) {
                     log("Skipping item " + ana.Name + " because it's a custom item.", LogLevel::Info, 39, "ExploreNode");
                     continue;
                 }
-                string itemSaveLocation = "VanillaItemToCustomItem/" + folder + ana.Name + ".Item.Gbx";
+                string itemSaveLocation = "VanillaItemToCustomItem/" + _folder + ana.Name + ".Item.Gbx";
                 totalItemsConverted++;
                 log("Converting item " + ana.Name + " to item.", LogLevel::Info, 44, "ExploreNode");
                 string fullItemSaveLocation = IO::FromUserGameFolder("Items/" + itemSaveLocation); // Changed to "Items/" for items
@@ -71,25 +71,26 @@ namespace ItemToItem {
     }
 
     class Conversion {
-        void ConvertItemToItem(CGameCtnBlockInfo@ block, string itemSaveLocation) {
+        void ConvertItemToItem(CGameCtnBlockInfo@ block, const string &in itemSaveLocation) {
             
     
         }
     }
 
     class Utils {
-        bool IsBlacklisted(string itemName) {
+        bool IsBlacklisted(const string &in itemName) {
             for (uint i = 0; i < itemToItemBlacklist.Length; i++) {
                 if (itemName == itemToItemBlacklist[i]) {
                     return true;
                 }
             }
+            return false;
         }
 
         int CountBlocks(CGameCtnArticleNodeDirectory@ parentNode) {
             int count = 0;
             for (uint i = 0; i < parentNode.ChildNodes.Length; i++) {
-                CGameCtnArticleNode node = parentNode.ChildNodes[i];
+                CGameCtnArticleNode@ node = parentNode.ChildNodes[i];
                 if (node.IsDirectory) {
                     count += CountBlocks(cast<CGameCtnArticleNodeDirectory@>(node));
                 } else {

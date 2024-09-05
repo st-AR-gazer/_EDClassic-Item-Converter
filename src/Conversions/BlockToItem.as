@@ -17,28 +17,28 @@ namespace BlockToItem {
     void ConversionPreparation() {
         log("Converting block to item.", LogLevel::Info, 18, "ConversionPreparation");
         
-        CGameCtnApp app = GetApp();
-        CGameCtnEditorCommon editor = cast<CGameCtnEditorCommon@>(app.Editor);
-        CGameEditorPluginMapMapType pmt = editor.PluginMapType;
-        CGameEditorGenericInventory inventory = pmt.Inventory;
+        CGameCtnApp@ app = GetApp();
+        CGameCtnEditorCommon@ editor = cast<CGameCtnEditorCommon@>(app.Editor);
+        CGameEditorPluginMapMapType@ pmt = editor.PluginMapType;
+        CGameEditorGenericInventory@ inventory = pmt.Inventory;
 
-        CGameCtnArticleNodeDirectory blocksNode = cast<CGameCtnArticleNodeDirectory@>(inventory.RootNodes[0]);
+        CGameCtnArticleNodeDirectory@ blocksNode = cast<CGameCtnArticleNodeDirectory@>(inventory.RootNodes[0]);
         totalBlocks = utils.CountBlocks(blocksNode);
         ExploreNode(blocksNode);
     }
 
-    void ExploreNode(CGameCtnArticleNodeDirectory@ parentNode, string folder = "") {
+    void ExploreNode(CGameCtnArticleNodeDirectory@ parentNode, string _folder = "") {
         for (uint i = 0; i < parentNode.ChildNodes.Length; i++) {
-            CGameCtnArticleNode node = parentNode.ChildNodes[i];
+            CGameCtnArticleNode@ node = parentNode.ChildNodes[i];
             if (node.IsDirectory) {
-                ExploreNode(cast<CGameCtnArticleNodeDirectory@>(node), folder + node.Name + "/");
+                ExploreNode(cast<CGameCtnArticleNodeDirectory@>(node), _folder + node.Name + "/");
             } else {
                 auto ana = cast<CGameCtnArticleNodeArticle@>(node);
                 if (ana.Article is null || ana.Article.IdName.ToLower().EndsWith("customblock")) {
                     log("Skipping block " + ana.Name + " because it's a custom block.", LogLevel::Info, 38, "ExploreNode");
                     continue;
                 }
-                string itemSaveLocation = "VanillaBlockToCustomItem/" + folder + ana.Name + ".Item.Gbx";
+                string itemSaveLocation = "VanillaBlockToCustomItem/" + _folder + ana.Name + ".Item.Gbx";
                 totalBlocksConverted++;
                 log("Converting block " + ana.Name + " to item.", LogLevel::Info, 43, "ExploreNode");
                 string fullItemSaveLocation = IO::FromUserGameFolder("Items/" + itemSaveLocation); // Changed to "Items/" for items
@@ -76,12 +76,12 @@ namespace BlockToItem {
         int2 button_Icon = int2(0, 0);
         int2 button_DirectionIcon = int2(0, 0);
 
-        void ConvertBlockToItem(CGameCtnBlockInfo@ blockInfo, string itemSaveLocation) {
+        void ConvertBlockToItem(CGameCtnBlockInfo@ blockInfo, const string &in itemSaveLocation) {
             log("Converting block to item.", LogLevel::Info, 80, "ConvertBlockToItem");
 
-            CGameCtnApp app = GetApp();
-            CGameCtnEditorCommon editor = cast<CGameCtnEditorCommon@>(app.Editor);
-            CGameEditorPluginMapMapType pmt = editor.PluginMapType;
+            CGameCtnApp@ app = GetApp();
+            CGameCtnEditorCommon@ editor = cast<CGameCtnEditorCommon@>(app.Editor);
+            CGameEditorPluginMapMapType@ pmt = editor.PluginMapType;
 
             pmt.RemoveAll();
             
@@ -97,7 +97,7 @@ namespace BlockToItem {
 
             int nBlocks = pmt.Blocks.Length;
             log("Starting to place the block: " + blockInfo.Name, LogLevel::Info, 99, "ConvertBlockToItem");
-            while (pmt.Blocks.Length == nBlocks) {
+            while (pmt.Blocks.Length == uint(nBlocks)) {
                 mouse.Click();
                 yield();
             }
@@ -114,7 +114,7 @@ namespace BlockToItem {
                 yield();
             }
 
-            CGameEditorItem editorItem = cast<CGameEditorItem>(app.Editor);
+            CGameEditorItem@ editorItem = cast<CGameEditorItem>(app.Editor);
             editorItem.IdName = blockInfo.Name;
  
             editorItem.PlacementParamGridHorizontalSize = 32;
@@ -132,7 +132,7 @@ namespace BlockToItem {
             yield();
 
             log("Saving item to " + itemSaveLocation, LogLevel::Info, 134, "ConvertBlockToItem");
-            editorItem.FileSaveAs(itemSaveLocation);
+            editorItem.FileSaveAs();
 
             yield();
 
@@ -165,22 +165,23 @@ namespace BlockToItem {
     }
 
     class Utils {
-        bool IsBlacklisted(string blockName) {
+        bool IsBlacklisted(const string &in blockName) {
             for (uint i = 0; i < blockToItemBlacklist.Length; i++) {
                 if (blockName.Contains(blockToItemBlacklist[i])) {
                     return true;
                 }
             }
+            return false;
         }
 
         int CountBlocks(CGameCtnArticleNodeDirectory@ parentNode, bool justNadeoBlocks = true, bool containsWater = false) {
             int count = 0;
             for(uint i = 0; i < parentNode.ChildNodes.Length; i++) {
-                CGameCtnArticleNode node = parentNode.ChildNodes[i];
+                CGameCtnArticleNode@ node = parentNode.ChildNodes[i];
                 if(node.IsDirectory) {
                     count += CountBlocks(cast<CGameCtnArticleNodeDirectory@>(node), justNadeoBlocks);
                 } else {
-                    CGameCtnBlock block = cast<CGameCtnBlock@>(node);
+                    CGameCtnBlock@ block = cast<CGameCtnBlock@>(node);
                     if (justNadeoBlocks && block.BlockInfo.Name.Contains("customblock")) {
                         continue;
                     }

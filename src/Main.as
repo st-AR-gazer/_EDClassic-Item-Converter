@@ -6,7 +6,7 @@ enum Conversion {
 }
 
 [Setting category="Conversion" name="Conversion Type"]
-Conversion currentConversion = 0;
+Conversion currentConversion = Conversion::None;
 
 void Main() {
     if (!_Game::IsInEditor()) { log("Not in editor. Exiting.", LogLevel::Error, 12, "Main"); return; }
@@ -104,37 +104,45 @@ class MouseController {
         }
     }
 
+
     void Click(int x, int y) {
-        if (click !is null) {
-            click.Call(x, y);
-        }
+        if (click is null) return;
+        click.Call(x, y);
     }
 
     void Click() {
+        if (click is null) return;
         array<int> pos = GetPosition();
         Click(pos[0], pos[1]);
     }
 
+    void Click(int2 pos) {
+        if (click is null) return;
+        Click(pos.x, pos.y);
+    }
+
     void Move(int x, int y) {
-        if (move !is null) {
-            move.Call(x, y);
-        }
+        if (move is null) return;
+        move.Call(x, y);
     }
 
     array<int> GetPosition() {
-        if (get_position !is null) {
-            return get_position.Call();
+        if (get_position is null) {
+            int2 position = get_position.CallInt64();
+            return {position.x, position.y};
         }
         return {0, 0};
     }
 
     void Jiggle() {
+        if (move is null) return;
         array<int> pos = GetPosition();
         Move(pos[0] + 1, pos[1]);
         Move(pos[0], pos[1]);
     }
 
     void MoveDirection(MouseDirection dir) {
+        if (move is null) return;
         array<int> pos = GetPosition();
         switch (dir) {
             case MouseDirection::up:
