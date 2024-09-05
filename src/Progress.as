@@ -11,13 +11,16 @@ void RenderInterface() {
 
         if (currentConversion == Conversion::blockToBlock) {
             int x = BlockToBlock::totalBlocks - BlockToBlock::totalBlocksConverted;
-            progress = 1.0f - (float(x) / float(BlockToBlock::totalBlocks));
+            if (BlockToBlock::totalBlocks == 0) { progress = 1.0f; }
+            else { progress = 1.0f - (float(x) / float(BlockToBlock::totalBlocks)); }
         } else if (currentConversion == Conversion::blockToItem) {
             int x = BlockToItem::totalBlocks - BlockToItem::totalBlocksConverted;
-            progress = 1.0f - (float(x) / float(BlockToItem::totalBlocks));
+            if (BlockToItem::totalBlocks == 0) { progress = 1.0f; }
+            else { progress = 1.0f - (float(x) / float(BlockToItem::totalBlocks)); }
         } else if (currentConversion == Conversion::itemToItem) {
             int x = ItemToItem::totalItems - ItemToItem::totalItemsConverted;
-            progress = 1.0f - (float(x) / float(ItemToItem::totalItems));
+            if (ItemToItem::totalItems == 0) { progress = 1.0f; }
+            else { progress = 1.0f - (float(x) / float(ItemToItem::totalItems)); }
         }
 
 

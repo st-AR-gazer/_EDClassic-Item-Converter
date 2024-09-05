@@ -8,8 +8,8 @@ namespace BlockToItem {
     void Init() {
         log("Initializing BlockToItem.", LogLevel::Info, 9, "Init");
 
-        utils = Utils();
-        conv = Conversion();
+        @utils = Utils();
+        @conv = Conversion();
 
         ConversionPreparation();
     }
@@ -23,13 +23,13 @@ namespace BlockToItem {
         CGameEditorGenericInventory@ inventory = pmt.Inventory;
 
         CGameCtnArticleNodeDirectory@ blocksNode = cast<CGameCtnArticleNodeDirectory@>(inventory.RootNodes[0]);
-        totalBlocks = utils.CountBlocks(blocksNode);
+        totalBlocks = utils.CountBlocks(blocksNode, false, true);
         ExploreNode(blocksNode);
     }
 
     void ExploreNode(CGameCtnArticleNodeDirectory@ parentNode, string _folder = "") {
         for (uint i = 0; i < parentNode.ChildNodes.Length; i++) {
-            CGameCtnArticleNode@ node = parentNode.ChildNodes[i];
+            auto node = parentNode.ChildNodes[i];
             if (node.IsDirectory) {
                 ExploreNode(cast<CGameCtnArticleNodeDirectory@>(node), _folder + node.Name + "/");
             } else {
@@ -38,10 +38,12 @@ namespace BlockToItem {
                     log("Skipping block " + ana.Name + " because it's a custom block.", LogLevel::Info, 38, "ExploreNode");
                     continue;
                 }
-                string itemSaveLocation = "VanillaBlockToCustomItem/" + _folder + ana.Name + ".Item.Gbx";
+                string itemSaveLocation = "Nadeo/" + "VanillaBlockToCustomItem/" + _folder + ana.Name + ".Item.Gbx";
                 totalBlocksConverted++;
                 log("Converting block " + ana.Name + " to item.", LogLevel::Info, 43, "ExploreNode");
                 string fullItemSaveLocation = IO::FromUserGameFolder("Items/" + itemSaveLocation); // Changed to "Items/" for items
+
+                print(fullItemSaveLocation);
 
                 if (IO::FileExists(fullItemSaveLocation)) {
                     log("Item " + itemSaveLocation + " already exists. Skipping.", LogLevel::Info, 47, "ExploreNode");
@@ -79,14 +81,14 @@ namespace BlockToItem {
         void ConvertBlockToItem(CGameCtnBlockInfo@ blockInfo, const string &in itemSaveLocation) {
             log("Converting block to item.", LogLevel::Info, 80, "ConvertBlockToItem");
 
-            CGameCtnApp@ app = GetApp();
-            CGameCtnEditorCommon@ editor = cast<CGameCtnEditorCommon@>(app.Editor);
-            CGameEditorPluginMapMapType@ pmt = editor.PluginMapType;
+            auto app = GetApp();
+            auto editor = cast<CGameCtnEditorCommon@>(app.Editor);
+            auto pmt = editor.PluginMapType;
 
-            pmt.RemoveAll();
+            // pmt.RemoveAll();
             
             yield();
-
+            
             pmt.PlaceMode = CGameEditorPluginMap::EPlaceMode::GhostBlock;
 
             yield();
@@ -94,6 +96,8 @@ namespace BlockToItem {
             @pmt.CursorBlockModel = blockInfo;
 
             yield();
+
+            while(true)yield();
 
             int nBlocks = pmt.Blocks.Length;
             log("Starting to place the block: " + blockInfo.Name, LogLevel::Info, 99, "ConvertBlockToItem");
