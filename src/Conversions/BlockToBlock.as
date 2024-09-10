@@ -1,5 +1,4 @@
 namespace BlockToBlock {
-
     Utils@ utils;
     Conversion@ conv;
 
@@ -9,8 +8,8 @@ namespace BlockToBlock {
     void Init() {
         log("Initializing BlockToBlock.", LogLevel::Info, 10, "Init");
 
-        utils = Utils();
-        conv = Conversion();
+        @utils = Utils();
+        @conv = Conversion();
 
         ConversionPreparation();
     }
@@ -24,7 +23,7 @@ namespace BlockToBlock {
         CGameEditorGenericInventory@ inventory = pmt.Inventory;
 
         CGameCtnArticleNodeDirectory@ blocksNode = cast<CGameCtnArticleNodeDirectory@>(inventory.RootNodes[0]);
-        totalBlocks = utils.CountBlocks(blocksNode);
+        totalBlocks = utils.CountBlocks(blocksNode, false, true);
         ExploreNode(blocksNode);
     }
 
@@ -43,6 +42,8 @@ namespace BlockToBlock {
                 totalBlocksConverted++;
                 log("Converting block " + ana.Name + " to block.", LogLevel::Info, 44, "ExploreNode");
                 string fullBlockSaveLocation = IO::FromUserGameFolder("Blocks/" + blockSaveLocation); // Changed to "Block/" for blocks
+
+                print(fullBlockSaveLocation);
 
                 if (IO::FileExists(fullBlockSaveLocation)) {
                     log("Block " + blockSaveLocation + " already exists. Skipping.", LogLevel::Info, 48, "ExploreNode");
@@ -64,7 +65,7 @@ namespace BlockToBlock {
                         continue;
                     }
 
-                    log("Converting block " + block.Name + " to item.", LogLevel::Info, 67, "ExploreNode");
+                    log("Converting block " + block.Name + " to custom block.", LogLevel::Info, 67, "ExploreNode");
                     log("Saving block to " + blockSaveLocation, LogLevel::Info, 68, "ExploreNode");
                     
                     conv.ConvertBlockToBlock(block, blockSaveLocation);
@@ -74,8 +75,11 @@ namespace BlockToBlock {
     }
 
     class Conversion {
-        int2 button_Icon = int2(0, 0);
-        int2 button_DirectionIcon = int2(0, 0);
+        int2 button_Icon = int2(445, 255);
+        int2 button_DirectionIcon = int2(985, 550);
+
+        int2 button_addMesh = int2(440, 420);
+        int2 button_exitMesh = int2(30, 1050);
 
         void ConvertBlockToBlock(CGameCtnBlockInfo@ blockInfo, const string &in blockSaveLocation) {
             log("Converting block to block.", LogLevel::Info, 81, "ConvertBlockToBlock");
@@ -84,11 +88,11 @@ namespace BlockToBlock {
             CGameCtnEditorCommon@ editor = cast<CGameCtnEditorCommon@>(app.Editor);
             CGameEditorPluginMapMapType@ pmt = cast<CGameEditorPluginMapMapType>(editor.PluginMapType);
 
-            pmt.RemoveAll();
+            // pmt.RemoveAll();
 
             yield();
 
-            pmt.PlaceMode = CGameEditorPluginMap::EPlaceMode::Block;
+            pmt.PlaceMode = CGameEditorPluginMap::EPlaceMode::GhostBlock;
 
             yield();
 
@@ -104,6 +108,7 @@ namespace BlockToBlock {
             }
             editor.ButtonBlockItemCreateModeOnClick();
 
+
             yield();
             
             // Assuming CGameEditorItem works for blocks aswell...
@@ -117,28 +122,37 @@ namespace BlockToBlock {
                 }
                 yield();
             }
+
+            mouse.Move(button_addMesh);
+            mouse.Click();
             
-            CGameEditorItem@ editorItem = cast<CGameEditorItem>(app.Editor);
-            editorItem.IdName = blockInfo.Name;
- 
-            editorItem.PlacementParamGridHorizontalSize = 32;
-            editorItem.PlacementParamGridVerticalSize = 8;
-            editorItem.PlacementParamFlyStep = 8;
+            yield();
+
+            mouse.Move(button_exitMesh);
+            mouse.Click();
+
 
             log("Clicking the button to set the icon.", LogLevel::Info, 128, "ConvertBlockToBlock");
-            mouse.Click(button_Icon);
+            mouse.Move(button_Icon);
+            mouse.Click();
 
             yield();
 
             log("Clicking the button to set the direction icon.", LogLevel::Info, 133, "ConvertBlockToBlock");
-            mouse.Click(button_DirectionIcon);
+            mouse.Move(button_DirectionIcon);
+            mouse.Click();
 
             yield();
 
-            log("Saving block to " + blockSaveLocation, LogLevel::Info, 138, "ConvertBlockToBlock");
+            log("Saving block to: " + blockSaveLocation, LogLevel::Info, 138, "ConvertBlockToBlock");
+            CGameEditorItem@ editorItem = cast<CGameEditorItem>(app.Editor);
+            editorItem.IdName = blockInfo.Name;
+            editorItem.PlacementParamGridHorizontalSize = 32;
+            editorItem.PlacementParamGridVerticalSize = 8;
+            editorItem.PlacementParamFlyStep = 8;
             editorItem.FileSaveAs();
 
-            yield();
+            yield(3);
 
             app.BasicDialogs.String = blockSaveLocation;
 
@@ -171,20 +185,25 @@ namespace BlockToBlock {
     class Utils {
         bool IsBlacklisted(const string &in blockName) {
             for (uint i = 0; i < blockToBlockBlacklist.Length; i++) {
-                if (blockName.ToLower().Contains(blockToBlockBlacklist[i])) {
+                if (blockName.Contains(blockToBlockBlacklist[i])) {
                     return true;
                 }
             }
             return false;
         }
 
-        int CountBlocks(CGameCtnArticleNodeDirectory@ parentNode) {
+
+        int CountBlocks(CGameCtnArticleNodeDirectory@ parentNode, bool justNadeoBlocks = true, bool containsWater = false) {
             int count = 0;
-            for (uint i = 0; i < parentNode.ChildNodes.Length; i++) {
+            for(uint i = 0; i < parentNode.ChildNodes.Length; i++) {
                 CGameCtnArticleNode@ node = parentNode.ChildNodes[i];
-                if (node.IsDirectory) {
-                    count += CountBlocks(cast<CGameCtnArticleNodeDirectory@>(node));
+                if(node.IsDirectory) {
+                    count += CountBlocks(cast<CGameCtnArticleNodeDirectory@>(node), justNadeoBlocks);
                 } else {
+                    CGameCtnBlock@ block = cast<CGameCtnBlock@>(node);
+                    if (justNadeoBlocks && block.BlockInfo.Name.Contains("customblock")) {
+                        continue;
+                    }
                     count++;
                 }
             }
@@ -196,4 +215,3 @@ namespace BlockToBlock {
         }
     }
 }
-

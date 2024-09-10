@@ -75,8 +75,8 @@ namespace BlockToItem {
     }
 
     class Conversion {
-        int2 button_Icon = int2(0, 0);
-        int2 button_DirectionIcon = int2(0, 0);
+        int2 button_Icon = int2(445, 417);
+        int2 button_DirectionIcon = int2(985, 550);
 
         void ConvertBlockToItem(CGameCtnBlockInfo@ blockInfo, const string &in itemSaveLocation) {
             log("Converting block to item.", LogLevel::Info, 80, "ConvertBlockToItem");
@@ -89,15 +89,17 @@ namespace BlockToItem {
             
             yield();
             
+            // pmt.PlaceMode = CGameEditorPluginMap::EPlaceMode::FreeBlock;
+            // pmt.PlaceMode = CGameEditorPluginMap::EPlaceMode::Block;
             pmt.PlaceMode = CGameEditorPluginMap::EPlaceMode::GhostBlock;
 
             yield();
 
             @pmt.CursorBlockModel = blockInfo;
+            if (pmt.CursorBlockModel is null) print("CursorBlockModel is null");
 
             yield();
 
-            while(true)yield();
 
             int nBlocks = pmt.Blocks.Length;
             log("Starting to place the block: " + blockInfo.Name, LogLevel::Info, 99, "ConvertBlockToItem");
@@ -105,6 +107,7 @@ namespace BlockToItem {
                 mouse.Click();
                 yield();
             }
+
             editor.ButtonItemCreateFromBlockModeOnClick();
 
             yield();
@@ -126,19 +129,21 @@ namespace BlockToItem {
             editorItem.PlacementParamFlyStep = 8;
 
             log("Clicking the button to set the icon.", LogLevel::Info, 124, "ConvertBlockToItem");
-            mouse.Click(button_Icon);
+            mouse.Move(button_Icon);
+            mouse.Click();
 
             yield();
 
             log("Clicking the button to set the direction icon.", LogLevel::Info, 129, "ConvertBlockToItem");
-            mouse.Click(button_DirectionIcon);
+            mouse.Move(button_DirectionIcon);
+            mouse.Click();
 
             yield();
 
-            log("Saving item to " + itemSaveLocation, LogLevel::Info, 134, "ConvertBlockToItem");
+            log("Saving item to: " + itemSaveLocation, LogLevel::Info, 134, "ConvertBlockToItem");
             editorItem.FileSaveAs();
 
-            yield();
+            yield(3);
 
             app.BasicDialogs.String = itemSaveLocation;
 

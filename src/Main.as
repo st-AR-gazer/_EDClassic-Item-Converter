@@ -105,25 +105,33 @@ class MouseController {
     }
 
 
-    void Click(int x, int y) {
-        if (click is null) return;
-        click.Call(x, y);
-    }
-
     void Click() {
         if (click is null) return;
-        array<int> pos = GetPosition();
-        Click(pos[0], pos[1]);
+        click.Call();
+    }
+
+    void Click(int x, int y) {
+        if (click is null) return;
+
+        Move(x, y);
+        Click();
     }
 
     void Click(int2 pos) {
         if (click is null) return;
-        Click(pos.x, pos.y);
+        
+        Move(pos);
+        Click();
     }
 
     void Move(int x, int y) {
         if (move is null) return;
         move.Call(x, y);
+    }
+
+    void Move(int2 pos) {
+        if (move is null) return;
+        Move(pos.x, pos.y);
     }
 
     array<int> GetPosition() {
