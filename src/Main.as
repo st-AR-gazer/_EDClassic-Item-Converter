@@ -142,11 +142,32 @@ class MouseController {
         return {0, 0};
     }
 
-    void Jiggle() {
+    void Jiggle(float multiplier = 1.0f, int direction = 0) {
         if (move is null) return;
+
         array<int> pos = GetPosition();
-        Move(pos[0] + 1, pos[1]);
-        Move(pos[0], pos[1]);
+        switch (direction) {
+            case 0: // No rotation
+                Move(pos[0] + (1 * multiplier), pos[1]);
+                Move(pos[0], pos[1] + (1 * multiplier));
+                Move(pos[0] - (1 * multiplier), pos[1]);
+                Move(pos[0], pos[1] - (1 * multiplier));
+                break;
+            case 1: // Rotate clockwise
+                Move(pos[0] + (1 * multiplier), pos[1]);
+                Move(pos[0], pos[1] + (1 * multiplier));
+                Move(pos[0] - (1 * multiplier), pos[1]);
+                Move(pos[0], pos[1] - (1 * multiplier));
+                break;
+            case 2: // Rotate counterclockwise
+                Move(pos[0] - (1 * multiplier), pos[1]);
+                Move(pos[0], pos[1] + (1 * multiplier));
+                Move(pos[0] + (1 * multiplier), pos[1]);
+                Move(pos[0], pos[1] - (1 * multiplier));
+                break;
+            default:
+                break;
+        }
     }
 
     void MoveDirection(MouseDirection dir) {
