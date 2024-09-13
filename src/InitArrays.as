@@ -1,6 +1,6 @@
 void InitBlockedArrays() {
-    InitBlockToItemArray();
     InitBlockToBlockArray();
+    InitBlockToItemArray();
 }
 
 
@@ -10,7 +10,12 @@ void InitBlockedArrays() {
 string[] blockToBlockBlacklist;
 
 void InitBlockToBlockArray() {
+    // Doesn't crash but can't be converted
+    blockToBlockBlacklist.InsertLast("RoadIceWithWallDiagRightCheckpointLeft");
+    blockToBlockBlacklist.InsertLast("RoadIceWithWallDiagRightCheckpointRight"); 
 
+    // Game crashes when opening mesh modeler:
+    blockToBlockBlacklist.InsertLast("DecoPlatformSlope2Base2CurveOut");
 }
 
 

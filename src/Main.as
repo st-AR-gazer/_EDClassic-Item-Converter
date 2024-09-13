@@ -135,17 +135,23 @@ class MouseController {
     }
 
     array<int> GetPosition() {
-        if (get_position is null) {
+        if (get_position !is null) {
             int2 position = get_position.CallInt64();
             return {position.x, position.y};
         }
         return {0, 0};
     }
 
+    // fix 'jiggle', add a swirl and sid to side and circle and square
+
+
     void Jiggle(float multiplier = 1.0f, int direction = 0) {
         if (move is null) return;
 
         array<int> pos = GetPosition();
+        
+        print(pos[0] + " " + pos[1]);
+
         switch (direction) {
             case 0: // No rotation
                 Move(pos[0] + (1 * multiplier), pos[1]);

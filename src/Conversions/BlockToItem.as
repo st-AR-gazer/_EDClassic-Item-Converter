@@ -38,7 +38,7 @@ namespace BlockToItem {
                     log("Skipping block " + ana.Name + " because it's a custom block.", LogLevel::Info, 38, "ExploreNode");
                     continue;
                 }
-                string itemSaveLocation = "Nadeo/" + "VanillaBlockToCustomItem/" + _folder + ana.Name + ".Item.Gbx";
+                string itemSaveLocation = "VanillaBlockToCustomItem/" + _folder + ana.Name + ".Item.Gbx";
                 totalBlocksConverted++;
                 log("Converting block " + ana.Name + " to item.", LogLevel::Info, 43, "ExploreNode");
                 string fullItemSaveLocation = IO::FromUserGameFolder("Items/" + itemSaveLocation); // Changed to "Items/" for items
