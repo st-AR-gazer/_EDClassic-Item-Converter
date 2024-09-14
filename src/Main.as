@@ -58,7 +58,7 @@ void PrepareConversion() {
 }
 
 Import::Library@ GetLibraryFunctions() {
-    const string relativeDllPath = "src/lib/mouseControl.dll";
+    const string relativeDllPath = "src/lib/MouseControl.dll";
     const string baseFolder = IO::FromDataFolder('');
     const string localDllFile = baseFolder + relativeDllPath;
 

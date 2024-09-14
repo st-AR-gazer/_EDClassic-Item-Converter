@@ -1,4 +1,6 @@
 void Render() {
+    return;
+
     RenderDots();
 
     if (UI::Begin("Click Location Testing", isProgressOpen, UI::WindowFlags::NoCollapse)) {
