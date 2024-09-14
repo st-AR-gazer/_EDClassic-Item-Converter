@@ -9,7 +9,7 @@ struct vec2 {
     vec2(int _x, int _y) : x(_x), y(_y) {}
 };
 
-// VK_NUMPAD is generally the numpad3 key
+// VK_SHIFT is generally the shift key
 const int SAFE_KEY = VK_NUMPAD3;
 
 bool IsSafeKeyPressed() {
@@ -78,11 +78,20 @@ extern "C" __declspec(dllexport) void RMouseDown(bool hold) {
     }
 }
 
-// Get the current mouse position
-extern "C" __declspec(dllexport) vec2 GetPosition() {
+// Get the current X mouse position
+extern "C" __declspec(dllexport) int GetPositionX() {
     POINT p;
     if (GetCursorPos(&p)) {
-        return vec2(p.x, p.y);
+        return p.x;
     }
-    return vec2(0, 0);
+    return 0;
+}
+
+// Get the current Y mouse position
+extern "C" __declspec(dllexport) int GetPositionY() {
+    POINT p;
+    if (GetCursorPos(&p)) {
+        return p.y;
+    }
+    return 0;
 }

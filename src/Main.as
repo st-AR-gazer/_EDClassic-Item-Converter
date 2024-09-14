@@ -9,9 +9,14 @@ enum Conversion {
 Conversion currentConversion = Conversion::None;
 
 void Main() {
-    if (!_Game::IsInEditor()) { log("Not in editor. Exiting.", LogLevel::Error, 12, "Main"); return; }
+    // if (!_Game::IsInEditor()) { log("Not in editor. Exiting.", LogLevel::Error, 12, "Main"); return; }
 
     PrepareConversion();
+
+    mouse.Move(985, 550);
+    print(mouse.GetPosition());
+
+    return;
 
     if (currentConversion == Conversion::None) { log("No conversion type selected. Exiting.", LogLevel::Error, 16, "Main"); return; }
     if (currentConversion == Conversion::blockToBlock) {
@@ -91,19 +96,33 @@ enum MouseDirection {
     downRight = 8
 }
 
+
 class MouseController {
-    Import::Function@ get_position;
+    Import::Function@ get_position_x;
+    Import::Function@ get_position_y;
+
     Import::Function@ click;
+    Import::Function@ r_click;
+
+    Import::Function@ mouse_down;
+    Import::Function@ r_mouse_down;
+
     Import::Function@ move;
+    Import::Function@ move_relative;
+
 
     MouseController(Import::Library@ lib) {
         if (lib !is null) {
-            @get_position = lib.GetFunction("GetPosition");
+            @get_position_x = lib.GetFunction("GetPositionX");
+            @get_position_y = lib.GetFunction("GetPositionY");
+
+            @r_click = lib.GetFunction("RClick");
             @click = lib.GetFunction("Click");
+
             @move = lib.GetFunction("Move");
+            @move_relative = lib.GetFunction("MoveRelative");
         }
     }
-
 
     void Click() {
         if (click is null) return;
@@ -112,14 +131,12 @@ class MouseController {
 
     void Click(int x, int y) {
         if (click is null) return;
-
         Move(x, y);
         Click();
     }
 
     void Click(int2 pos) {
         if (click is null) return;
-        
         Move(pos);
         Click();
     }
@@ -134,42 +151,54 @@ class MouseController {
         Move(pos.x, pos.y);
     }
 
-    array<int> GetPosition() {
-        if (get_position !is null) {
-            int2 position = get_position.CallInt64();
-            return {position.x, position.y};
-        }
-        return {0, 0};
+
+    int2 GetPosition() {
+        return int2(GetPositionX(), GetPositionY());
     }
 
-    // fix 'jiggle', add a swirl and sid to side and circle and square
+    private int GetPositionX() {
+        if (get_position_x !is null) {
+            return get_position_x.CallInt32();
+        }
+        print("Failed to get position x.");
+        return 0;
+    }
 
+    private int GetPositionY() {
+        if (get_position_y !is null) {
+            return get_position_y.CallInt32();
+        }
+        print("Failed to get position y.");
+        return 0;
+    }
+    
+    // fix 'jiggle', add a swirl and sid to side and circle and square
 
     void Jiggle(float multiplier = 1.0f, int direction = 0) {
         if (move is null) return;
 
-        array<int> pos = GetPosition();
-        
+        int2 pos = GetPosition();
+
         print(pos[0] + " " + pos[1]);
 
         switch (direction) {
             case 0: // No rotation
-                Move(pos[0] + (1 * multiplier), pos[1]);
-                Move(pos[0], pos[1] + (1 * multiplier));
-                Move(pos[0] - (1 * multiplier), pos[1]);
-                Move(pos[0], pos[1] - (1 * multiplier));
+                // Move(pos[0] + (1 * multiplier), pos[1]);
+                // Move(pos[0], pos[1] + (1 * multiplier));
+                // Move(pos[0] - (1 * multiplier), pos[1]);
+                // Move(pos[0], pos[1] - (1 * multiplier));
                 break;
             case 1: // Rotate clockwise
-                Move(pos[0] + (1 * multiplier), pos[1]);
-                Move(pos[0], pos[1] + (1 * multiplier));
-                Move(pos[0] - (1 * multiplier), pos[1]);
-                Move(pos[0], pos[1] - (1 * multiplier));
+                // Move(pos[0] + (1 * multiplier), pos[1]);
+                // Move(pos[0], pos[1] + (1 * multiplier));
+                // Move(pos[0] - (1 * multiplier), pos[1]);
+                // Move(pos[0], pos[1] - (1 * multiplier));
                 break;
             case 2: // Rotate counterclockwise
-                Move(pos[0] - (1 * multiplier), pos[1]);
-                Move(pos[0], pos[1] + (1 * multiplier));
-                Move(pos[0] + (1 * multiplier), pos[1]);
-                Move(pos[0], pos[1] - (1 * multiplier));
+                // Move(pos[0] - (1 * multiplier), pos[1]);
+                // Move(pos[0], pos[1] + (1 * multiplier));
+                // Move(pos[0] + (1 * multiplier), pos[1]);
+                // Move(pos[0], pos[1] - (1 * multiplier));
                 break;
             default:
                 break;
@@ -178,7 +207,7 @@ class MouseController {
 
     void MoveDirection(MouseDirection dir) {
         if (move is null) return;
-        array<int> pos = GetPosition();
+        int2 pos = GetPosition();
         switch (dir) {
             case MouseDirection::up:
                 Move(pos[0], pos[1] - 1);

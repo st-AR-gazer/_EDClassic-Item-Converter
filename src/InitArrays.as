@@ -16,6 +16,34 @@ void InitBlockToBlockArray() {
 
     // Game crashes when opening mesh modeler:
     blockToBlockBlacklist.InsertLast("DecoPlatformSlope2Base2CurveOut");
+    blockToBlockBlacklist.InsertLast("DecoPlatformSlope2Base2CurveIn");
+    blockToBlockBlacklist.InsertLast("DecoPlatformSlope2Start2Curve2In");
+    blockToBlockBlacklist.InsertLast("DecoPlatformSlope2Start2Curve4Out");
+    blockToBlockBlacklist.InsertLast("DecoPlatformSlope2End2Curve2Out");
+    blockToBlockBlacklist.InsertLast("DecoPlatformSlope2End2Curve4In");
+    blockToBlockBlacklist.InsertLast("DecoPlatformSlope4Base4CurveOut");
+    blockToBlockBlacklist.InsertLast("DecoPlatformSlope4Base4CurveIn");
+    blockToBlockBlacklist.InsertLast("DecoPlatformSlope2Start2Base5");
+
+    blockToBlockBlacklist.InsertLast("DecoPlatformDirtSlope2Base2CurveOut");
+    blockToBlockBlacklist.InsertLast("DecoPlatformDirtSlope2Base2CurveIn");
+    blockToBlockBlacklist.InsertLast("DecoPlatformDirtSlope2Start2Curve2In");
+    blockToBlockBlacklist.InsertLast("DecoPlatformDirtSlope2Start2Curve4Out");
+    blockToBlockBlacklist.InsertLast("DecoPlatformDirtSlope2End2Curve2Out");
+    blockToBlockBlacklist.InsertLast("DecoPlatformDirtSlope2End2Curve4In");
+    blockToBlockBlacklist.InsertLast("DecoPlatformDirtSlope4Base4CurveOut");
+    blockToBlockBlacklist.InsertLast("DecoPlatformDirtSlope4Base4CurveIn");
+    blockToBlockBlacklist.InsertLast("DecoPlatformDirtSlope2Start2Base5");
+
+    blockToBlockBlacklist.InsertLast("DecoPlatformIceSlope2Base2CurveOut");
+    blockToBlockBlacklist.InsertLast("DecoPlatformIceSlope2Base2CurveIn");
+    blockToBlockBlacklist.InsertLast("DecoPlatformIceSlope2Start2Curve2In");
+    blockToBlockBlacklist.InsertLast("DecoPlatformIceSlope2Start2Curve4Out");
+    blockToBlockBlacklist.InsertLast("DecoPlatformIceSlope2End2Curve2Out");
+    blockToBlockBlacklist.InsertLast("DecoPlatformIceSlope2End2Curve4In");
+    blockToBlockBlacklist.InsertLast("DecoPlatformIceSlope4Base4CurveOut");
+    blockToBlockBlacklist.InsertLast("DecoPlatformIceSlope4Base4CurveIn");
+    blockToBlockBlacklist.InsertLast("DecoPlatformIceSlope2Start2Base5");
 }
 
 

@@ -5,20 +5,17 @@ namespace BlockToBlock {
     int totalBlocks = 0;
     int totalBlocksConverted = 0;
 
-    // Arrays to store blocks and their corresponding save locations
     array<CGameCtnBlockInfo@> indexedBlocks;
     array<string> saveLocations;
 
-    // Array to store already completed block names (use a dictionary for fast lookup)
     dictionary completedBlocks;
 
     void Init() {
-        log("Initializing BlockToBlock.", LogLevel::Info, 9, "Init");
+        log("Initializing BlockToBlock.", LogLevel::Info, 16, "Init");
 
         @utils = Utils();
         @conv = Conversion();
 
-        // Index all completed block names from the Blocks folder, only run once at initialization
         string[] completedFiles = IO::IndexFolder(IO::FromUserGameFolder("Blocks/VanillaBlockToCustomBlock"), true);
         for (uint i = 0; i < completedFiles.Length; i++) {
             string withBlock = Path::GetFileNameWithoutExtension(completedFiles[i]);
@@ -30,7 +27,7 @@ namespace BlockToBlock {
     }
 
     void ConversionPreparation() {
-        log("Converting block to block.", LogLevel::Info, 18, "ConversionPreparation");
+        log("Converting block to block.", LogLevel::Info, 33, "ConversionPreparation");
 
         CGameCtnApp@ app = GetApp();
         CGameCtnEditorCommon@ editor = cast<CGameCtnEditorCommon@>(app.Editor);
@@ -40,10 +37,8 @@ namespace BlockToBlock {
         CGameCtnArticleNodeDirectory@ blocksNode = cast<CGameCtnArticleNodeDirectory@>(inventory.RootNodes[0]);
         totalBlocks = utils.CountBlocks(blocksNode, false, true);
 
-        // Index blocks without converting them
         ExploreNode(blocksNode);
 
-        // Now process the indexed blocks
         ProcessIndexedBlocks();
     }
 
@@ -55,30 +50,29 @@ namespace BlockToBlock {
             } else {
                 auto ana = cast<CGameCtnArticleNodeArticle@>(node);
                 if (ana.Article is null || ana.Article.IdName.ToLower().EndsWith("customblock")) {
-                    continue; // Skipping custom blocks
+                    continue;
                 }
                 auto block = cast<CGameCtnBlockInfo@>(ana.Article.LoadedNod);
 
                 if (block is null) {
-                    continue; // Skipping null blocks
+                    continue;
                 }
 
                 if (string(block.Name).ToLower().Contains("water")) {
-                    continue; // Skipping water blocks
+                    continue;
                 }
 
                 if (utils.IsBlacklisted(block.Name)) {
-                    continue; // Skipping blacklisted blocks
+                    continue;
                 }
 
-                // Check if block has already been completed based on block names in the dictionary
                 if (IsBlockCompleted(block.Name)) {
-                    continue; // Skip already processed blocks
+                    continue;
                 }
 
                 string blockSaveLocation = "VanillaBlockToCustomBlock/" + _folder + block.Name + ".Block.Gbx";
-                indexedBlocks.InsertLast(block); // Store block
-                saveLocations.InsertLast(blockSaveLocation); // Store corresponding save location
+                indexedBlocks.InsertLast(block);
+                saveLocations.InsertLast(blockSaveLocation);
 
                 totalBlocksConverted++;
             }
@@ -113,7 +107,7 @@ namespace BlockToBlock {
         int2 button_exitMesh = int2(30, 1050);
 
         void ConvertBlockToBlock(CGameCtnBlockInfo@ blockInfo, const string &in blockSaveLocation) {
-            log("Converting block to block.", LogLevel::Info, 85, "ConvertBlockToBlock");
+            log("Converting block to block.", LogLevel::Info, 116, "ConvertBlockToBlock");
 
             CGameCtnApp@ app = GetApp();
             CGameCtnEditorCommon@ editor = cast<CGameCtnEditorCommon@>(app.Editor);
@@ -134,7 +128,8 @@ namespace BlockToBlock {
             yield(15);
 
             int nBlocks = pmt.Blocks.Length;
-            log("Starting to place the block: " + blockInfo.Name, LogLevel::Info, 106, "ConvertBlockToBlock");
+            log("Starting to place the block: " + blockInfo.Name, LogLevel::Info, 137, "ConvertBlockToBlock");
+            print("-------------------- " + blockInfo.Name);
             while (pmt.Blocks.Length == uint(nBlocks)) {
                 mouse.Click();
                 yield();
@@ -152,7 +147,7 @@ namespace BlockToBlock {
             while (cast<CGameEditorItem>(app.Editor) is null) {
                 @editor = cast<CGameCtnEditorCommon@>(app.Editor);
                 if (editor !is null && editor.PickedBlock !is null && editor.PickedBlock.BlockInfo.Name == blockInfo.Name) {
-                    log("Clicking to confirm the selection.", LogLevel::Info, 122, "ConvertBlockToBlock");
+                    log("Clicking to confirm the selection.", LogLevel::Info, 156, "ConvertBlockToBlock");
                     // mouse.Jiggle();
                     mouse.Click();
                     yield(10);
@@ -161,37 +156,40 @@ namespace BlockToBlock {
             }
 
             yield(15);
-            log("Adding mesh to block.", LogLevel::Info, 130, "ConvertBlockToBlock");
+            log("Adding mesh to block.", LogLevel::Info, 165, "ConvertBlockToBlock");
             mouse.Move(button_addMesh);
             mouse.Click();
             
             yield(15);
 
-            log("Exiting mesh modeler mode.", LogLevel::Info, 136, "ConvertBlockToBlock");
+            log("Exiting mesh modeler mode.", LogLevel::Info, 171, "ConvertBlockToBlock");
             mouse.Move(button_exitMesh);
             mouse.Click();
 
             yield(15);
 
-            log("Clicking the button to set the icon.", LogLevel::Info, 141, "ConvertBlockToBlock");
+            log("Clicking the button to set the icon.", LogLevel::Info, 177, "ConvertBlockToBlock");
             mouse.Move(button_Icon);
             mouse.Click();
 
             yield(15);
 
-            log("Clicking the button to set the direction icon.", LogLevel::Info, 147, "ConvertBlockToBlock");
+            log("Clicking the button to set the direction icon.", LogLevel::Info, 183, "ConvertBlockToBlock");
             mouse.Move(button_DirectionIcon);
             mouse.Click();
 
             yield(15);
 
-            log("Saving block to: " + blockSaveLocation, LogLevel::Info, 153, "ConvertBlockToBlock");
+            log("Saving block to: " + blockSaveLocation, LogLevel::Info, 189, "ConvertBlockToBlock");
             CGameEditorItem@ editorItem = cast<CGameEditorItem>(app.Editor);
             yield(15);
+
+            while (editorItem is null) {
+                yield();
+                @editorItem = cast<CGameEditorItem>(app.Editor);
+            }
+            
             editorItem.IdName = blockInfo.Name;
-            editorItem.PlacementParamGridHorizontalSize = 32;
-            editorItem.PlacementParamGridVerticalSize = 8;
-            editorItem.PlacementParamFlyStep = 8;
 
             yield(15);
             
