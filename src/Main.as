@@ -39,15 +39,14 @@ Import::Library@ lib = null;
 MouseController@ mouse = null;
 
 void PrepareConversion() {
-    log("Preparing conversion.", LogLevel::Info, 37, "PrepareConversion");
-    
-    InitBlockedArrays();
-
     @lib = GetLibraryFunctions();
     if (lib is null) {
         log("Failed to load library functions.", LogLevel::Error, 43, "PrepareConversion");
         return;
     }
+    
+    log("Preparing conversion.", LogLevel::Info, 37, "PrepareConversion");
+    InitBlockedArrays();
     
     @mouse = MouseController(lib);
 
@@ -171,67 +170,95 @@ class MouseController {
         print("Failed to get position y.");
         return 0;
     }
+
+    void MoveRelative(int x, int y) {
+        if (move_relative is null) return;
+        move_relative.Call(x, y);
+    }
     
-    // fix 'jiggle', add a swirl and sid to side and circle and square
 
-    void Jiggle(float multiplier = 1.0f, int direction = 0) {
-        if (move is null) return;
+    float theta = 0.0f;
+    float squareSideLength = 0.0f;
+    int squareStep = 0;
+    void Jiggle(const string &in type = "swirl", float step = 0.1f, float multiplier = 1.0f, float radius = 50.0f) {
+        if (move_relative is null) return;
 
-        int2 pos = GetPosition();
+        if (type == "archimedean spiral") {
+            radius += multiplier;
+            theta += step;
 
-        print(pos[0] + " " + pos[1]);
+            float x = radius * Math::Cos(theta);
+            float y = radius * Math::Sin(theta);
 
-        switch (direction) {
-            case 0: // No rotation
-                // Move(pos[0] + (1 * multiplier), pos[1]);
-                // Move(pos[0], pos[1] + (1 * multiplier));
-                // Move(pos[0] - (1 * multiplier), pos[1]);
-                // Move(pos[0], pos[1] - (1 * multiplier));
-                break;
-            case 1: // Rotate clockwise
-                // Move(pos[0] + (1 * multiplier), pos[1]);
-                // Move(pos[0], pos[1] + (1 * multiplier));
-                // Move(pos[0] - (1 * multiplier), pos[1]);
-                // Move(pos[0], pos[1] - (1 * multiplier));
-                break;
-            case 2: // Rotate counterclockwise
-                // Move(pos[0] - (1 * multiplier), pos[1]);
-                // Move(pos[0], pos[1] + (1 * multiplier));
-                // Move(pos[0] + (1 * multiplier), pos[1]);
-                // Move(pos[0], pos[1] - (1 * multiplier));
-                break;
-            default:
-                break;
+            MoveRelative(x, y);
+
+        } else if (type == "circle") {
+            theta += step;
+            float x = radius * Math::Cos(theta);
+            float y = radius * Math::Sin(theta);
+
+            MoveRelative(x, y);
+
+        } else if (type == "square") {
+            if (squareStep == 0) {
+                MoveRelative(multiplier, 0);
+                squareSideLength += multiplier;
+                if (squareSideLength >= radius) {
+                    squareStep = 1;
+                    squareSideLength = 0;
+                }
+            } else if (squareStep == 1) {
+                MoveRelative(0, multiplier);
+                squareSideLength += multiplier;
+                if (squareSideLength >= radius) {
+                    squareStep = 2;
+                    squareSideLength = 0;
+                }
+            } else if (squareStep == 2) {
+                MoveRelative(-multiplier, 0);
+                squareSideLength += multiplier;
+                if (squareSideLength >= radius) {
+                    squareStep = 3;
+                    squareSideLength = 0;
+                }
+            } else if (squareStep == 3) {
+                MoveRelative(0, -multiplier);
+                squareSideLength += multiplier;
+                if (squareSideLength >= radius) {
+                    squareStep = 0;
+                    squareSideLength = 0;
+                }
+            }
         }
     }
 
-    void MoveDirection(MouseDirection dir) {
-        if (move is null) return;
-        int2 pos = GetPosition();
+    void MoveDirection(MouseDirection dir, float step = 1.0f) {
+        if (move_relative is null) return;
+        
         switch (dir) {
             case MouseDirection::up:
-                Move(pos[0], pos[1] - 1);
+                MoveRelative(0, -step);
                 break;
             case MouseDirection::down:
-                Move(pos[0], pos[1] + 1);
+                MoveRelative(0, step);
                 break;
             case MouseDirection::left:
-                Move(pos[0] - 1, pos[1]);
+                MoveRelative(-step, 0);
                 break;
             case MouseDirection::right:
-                Move(pos[0] + 1, pos[1]);
+                MoveRelative(step, 0);
                 break;
             case MouseDirection::upLeft:
-                Move(pos[0] - 1, pos[1] - 1);
+                MoveRelative(-step, -step);
                 break;
             case MouseDirection::upRight:
-                Move(pos[0] + 1, pos[1] - 1);
+                MoveRelative(step, -step);
                 break;
             case MouseDirection::downLeft:
-                Move(pos[0] - 1, pos[1] + 1);
+                MoveRelative(-step, step);
                 break;
             case MouseDirection::downRight:
-                Move(pos[0] + 1, pos[1] + 1);
+                MoveRelative(step, step);
                 break;
         }
     }
