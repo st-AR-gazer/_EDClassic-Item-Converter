@@ -140,18 +140,12 @@ namespace BlockToBlock {
             yield(15);
             
             sleep(200);
-
-            // Assuming CGameEditorItem works for blocks aswell...
-            // Though this will have to be tested. If not CGameEditorMethod seems most likely to contain what we need.
             
+            int2 originalPos = int2(screenWidth / 2, screenHeight / 2);
+            // int2 originalPos = mouse.GetPosition();
+
             while (cast<CGameEditorItem>(app.Editor) is null) {
-                @editor = cast<CGameCtnEditorCommon@>(app.Editor);
-                if (editor !is null && editor.PickedBlock !is null && editor.PickedBlock.BlockInfo.Name == blockInfo.Name) {
-                    log("Clicking to confirm the selection.", LogLevel::Info, 156, "ConvertBlockToBlock");
-                    // mouse.Jiggle();
-                    mouse.Click();
-                    yield(10);
-                }
+                utils.FindBlock(@editor, blockInfo.Name, originalPos);
                 yield(5);
             }
 
@@ -256,6 +250,71 @@ namespace BlockToBlock {
 
         int BlocksLeftToConvert() {
             return totalBlocks - totalBlocksConverted;
+        }
+
+        void FindBlock(CGameCtnEditorCommon@ editor, CGameCtnBlockInfo@ blockInfo, int2 originalPos) {
+            @editor = cast<CGameCtnEditorCommon@>(GetApp().Editor);
+
+            mouse.JiggleOverTime("left right", 20, 0.1f, 10.0f);
+
+            if (editor !is null && editor.PickedBlock !is null && editor.PickedBlock.BlockInfo.Name == blockInfo.Name) {
+                log("Clicking to confirm the selection.", LogLevel::Info, 156, "ConvertBlockToBlock");
+                mouse.Click();
+                yield(10);
+            } else {
+                log("Moving to original position.", LogLevel::Info, 156, "ConvertBlockToBlock");
+                mouse.Move(originalPos);
+
+                log("Trying directional movement.", LogLevel::Info, 156, "ConvertBlockToBlock");
+                mouse.MoveDirectionOverTime(MouseDirection::downLeft, 20, 10.0f);
+                mouse.Move(originalPos);
+                mouse.MoveDirectionOverTime(MouseDirection::left, 20, 10.0f);
+                mouse.Move(originalPos);
+                mouse.MoveDirectionOverTime(MouseDirection::upLeft, 20, 10.0f);
+                mouse.Move(originalPos);
+                mouse.MoveDirectionOverTime(MouseDirection::up, 20, 10.0f);
+                mouse.Move(originalPos);
+                mouse.MoveDirectionOverTime(MouseDirection::upRight, 20, 10.0f);
+                mouse.Move(originalPos);
+                mouse.MoveDirectionOverTime(MouseDirection::right, 20, 10.0f);
+                mouse.Move(originalPos);
+                mouse.MoveDirectionOverTime(MouseDirection::downRight, 20, 10.0f);
+                mouse.Move(originalPos);
+                mouse.MoveDirectionOverTime(MouseDirection::down, 20, 10.0f);
+                mouse.Move(originalPos);
+
+                log("Trying circle jiggle pattern.", LogLevel::Info, 156, "ConvertBlockToBlock");
+                mouse.JiggleOverTime("circle", 20, 0.1f, 10.0f);
+                mouse.Move(originalPos);
+                mouse.JiggleOverTime("circle", 20, 0.1f, 20.0f);
+                mouse.Move(originalPos);
+                mouse.JiggleOverTime("circle", 20, 0.1f, 30.0f);
+                mouse.Move(originalPos);
+                mouse.JiggleOverTime("circle", 20, 0.1f, 40.0f);
+                mouse.Move(originalPos);
+                mouse.JiggleOverTime("circle", 20, 0.1f, 50.0f);
+                mouse.Move(originalPos);
+
+                log("Trying spiral jiggle pattern.", LogLevel::Info, 156, "ConvertBlockToBlock");
+                mouse.JiggleOverTime("archimedean spiral", 20, 0.1f, 1.0f);
+                mouse.Move(originalPos);
+                mouse.JiggleOverTime("archimedean spiral", 20, 0.1f, 2.0f);
+                mouse.Move(originalPos);
+                mouse.JiggleOverTime("archimedean spiral", 20, 0.1f, 3.0f);
+                mouse.Move(originalPos);
+                mouse.JiggleOverTime("archimedean spiral", 20, 0.1f, 4.0f);
+                mouse.Move(originalPos);
+
+                if (editor.PickedBlock is null || editor.PickedBlock.BlockInfo.Name != blockInfo.Name) {
+                    log("Unable to find the block, requesting manual selection.", LogLevel::Error, 156, "ConvertBlockToBlock");
+                    ShowManualSelectionUI();
+                }
+            }
+        }
+
+        void ShowManualSelectionUI() {
+            log("Showing manual selection UI.", LogLevel::Info, 156, "ConvertBlockToBlock");
+            NotifyError("Unable to find the block, please select it manually.");
         }
     }
 }
