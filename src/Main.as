@@ -122,6 +122,9 @@ class MouseController {
             @move_relative = lib.GetFunction("MoveRelative");
         }
     }
+    
+
+    /* Click */
 
     void Click() {
         if (click is null) return;
@@ -140,6 +143,11 @@ class MouseController {
         Click();
     }
 
+    /* End Click */
+
+
+    /* Movement */
+
     void Move(int x, int y) {
         if (move is null) return;
         move.Call(x, y);
@@ -150,6 +158,15 @@ class MouseController {
         Move(pos.x, pos.y);
     }
 
+    void MoveRelative(int x, int y) {
+        if (move_relative is null) return;
+        move_relative.Call(x, y);
+    }
+
+    /* End Movement */
+
+
+    /* Get Posistion */
 
     int2 GetPosition() {
         return int2(GetPositionX(), GetPositionY());
@@ -171,19 +188,44 @@ class MouseController {
         return 0;
     }
 
-    void MoveRelative(int x, int y) {
-        if (move_relative is null) return;
-        move_relative.Call(x, y);
+    /* End Get Position */
+
+
+    /* Movement Over Time */
+
+    void MoveOverTime(float startX, float startY, float endX, float endY, int frames) {
+        float deltaX = (endX - startX) / frames;
+        float deltaY = (endY - startY) / frames;
+
+        for (int i = 0; i < frames; i++) {
+            mouse.MoveRelative(deltaX, deltaY);
+            yield(1);
+        }
     }
-    
 
-    float theta = 0.0f;
-    float squareSideLength = 0.0f;
-    int squareStep = 0;
-    void Jiggle(const string &in type = "swirl", float step = 0.1f, float multiplier = 1.0f, float radius = 50.0f) {
+
+    /* Jiggle */
+
+    void JiggleOverTime(const string &in pattern, int frames, float step, float radius) {
+        for (int i = 0; i < frames; i++) {
+            mouse.Jiggle(pattern, step, radius);
+            yield(1);
+        }
+    }
+
+    private float theta = 0.0f;
+    private float squareSideLength = 0.0f;
+    private int squareStep = 0;
+    private void Jiggle(const string &in type = "archimedean spiral", float step = 0.1f, float multiplier = 1.0f, float radius = 50.0f) {
         if (move_relative is null) return;
 
-        if (type == "archimedean spiral") {
+        if (type == "left right") {
+            MoveRelative(multiplier, 0);
+            MoveRelative(-multiplier, 0);
+        } else if (type == "up down") {
+            MoveRelative(0, multiplier);
+            MoveRelative(0, -multiplier);
+        } else if (type == "archimedean spiral") {
             radius += multiplier;
             theta += step;
 
@@ -232,7 +274,19 @@ class MouseController {
         }
     }
 
-    void MoveDirection(MouseDirection dir, float step = 1.0f) {
+    /* End Jiggle */
+    
+
+    /* Move Direction */
+
+    void MoveDirectionOverTime(MouseDirection dir, int frames, float step) {
+        for (int i = 0; i < frames; i++) {
+            mouse.MoveDirection(dir, step);
+            yield(1);
+        }
+    }
+
+    private void MoveDirection(MouseDirection dir, float step = 1.0f) {
         if (move_relative is null) return;
         
         switch (dir) {
@@ -262,4 +316,8 @@ class MouseController {
                 break;
         }
     }
+
+    /* End Move Direction */
+
+    /* End Movement Over Time */
 }
