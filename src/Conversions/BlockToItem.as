@@ -182,7 +182,7 @@ namespace BlockToItem {
 
             yield();
 
-            mouse.Move(int2(screenHeight / 2, screenWidth / 2));
+            // mouse.Move(int2(screenHeight / 2, screenWidth / 2));
 
             @editor = cast<CGameCtnEditorCommon@>(app.Editor);
             @pmt = editor.PluginMapType;

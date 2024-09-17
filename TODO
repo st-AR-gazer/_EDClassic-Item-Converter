@@ -1,5 +1,0 @@
-still needs to add a 'jitter'??
-still needs to 'center' the mouse cursor after exiting the block mode??
-still needs to add a 'block'/'item' already exists
-
-when the game crashes the nod changes, this either has to be manually removed (pain) or some automated solution that check's if the name ends with _customblock BEFORE we check if the file exists (maybe it a folder contains a block that has '_customblock' in it the folder is ignored idk?)
