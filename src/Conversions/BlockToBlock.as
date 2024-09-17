@@ -80,7 +80,6 @@ namespace BlockToBlock {
     }
 
     bool IsBlockCompleted(const string &in blockName) {
-        // Lookup block name in the dictionary for faster checking
         return completedBlocks.Exists(blockName.ToLower());
     }
 
@@ -143,7 +142,6 @@ namespace BlockToBlock {
             
             int2 originalPos = int2(screenWidth / 2, screenHeight / 2);
             // int2 originalPos = mouse.GetPosition();
-
             while (cast<CGameEditorItem>(app.Editor) is null) {
                 utils.FindBlock(@editor, blockInfo.Name, originalPos);
                 yield(5);

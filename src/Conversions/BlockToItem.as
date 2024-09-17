@@ -4,12 +4,25 @@ namespace BlockToItem {
 
     int totalBlocks = 0;
     int totalBlocksConverted = 0;
+    
+    array<CGameCtnBlockInfo@> indexedBlocks;
+    array<string> saveLocations;
+    
+    dictionary completedBlocks;
 
     void Init() {
         log("Initializing BlockToItem.", LogLevel::Info, 9, "Init");
 
         @utils = Utils();
         @conv = Conversion();
+
+        // Load cached completed blocks
+        string[] completedFiles = IO::IndexFolder(IO::FromUserGameFolder("Items/VanillaBlockToCustomItem"), true);
+        for (uint i = 0; i < completedFiles.Length; i++) {
+            string withBlock = Path::GetFileNameWithoutExtension(completedFiles[i]);
+            string completedBlockName = Path::GetFileNameWithoutExtension(withBlock);
+            completedBlocks[completedBlockName.ToLower()] = true;
+        }
 
         ConversionPreparation();
     }
@@ -24,7 +37,10 @@ namespace BlockToItem {
 
         CGameCtnArticleNodeDirectory@ blocksNode = cast<CGameCtnArticleNodeDirectory@>(inventory.RootNodes[0]);
         totalBlocks = utils.CountBlocks(blocksNode, false, true);
+
         ExploreNode(blocksNode);
+
+        ProcessIndexedBlocks();
     }
 
     void ExploreNode(CGameCtnArticleNodeDirectory@ parentNode, string _folder = "") {
@@ -38,38 +54,46 @@ namespace BlockToItem {
                     log("Skipping block " + ana.Name + " because it's a custom block.", LogLevel::Info, 38, "ExploreNode");
                     continue;
                 }
-                string itemSaveLocation = "VanillaBlockToCustomItem/" + _folder + ana.Name + ".Item.Gbx";
-                totalBlocksConverted++;
-                log("Converting block " + ana.Name + " to item.", LogLevel::Info, 43, "ExploreNode");
-                string fullItemSaveLocation = IO::FromUserGameFolder("Items/" + itemSaveLocation); // Changed to "Items/" for items
 
-                print(fullItemSaveLocation);
-
-                if (IO::FileExists(fullItemSaveLocation)) {
-                    log("Item " + itemSaveLocation + " already exists. Skipping.", LogLevel::Info, 49, "ExploreNode");
-                } else {
-                    auto block = cast<CGameCtnBlockInfo@>(ana.Article.LoadedNod);
-
-                    if (block is null) {
-                        log("Block " + ana.Name + " is null. Skipping.", LogLevel::Info, 54, "ExploreNode");
-                        continue;
-                    }
-
-                    if (string(block.Name).ToLower().Contains("water")) {
-                        log("Water cannot be converted to a custom block/item. Skipping.", LogLevel::Info, 59, "ExploreNode");
-                        continue;
-                    }
-
-                    if (utils.IsBlacklisted(block.Name)) {
-                        log("Block " + block.Name + " is blacklisted. Skipping.", LogLevel::Info, 64, "ExploreNode");
-                        continue;
-                    }
-
-                    log("Converting block " + block.Name + " to item.", LogLevel::Info, 68, "ExploreNode");
-                    log("Saving item to " + itemSaveLocation, LogLevel::Info, 69, "ExploreNode");
-
-                    conv.ConvertBlockToItem(block, itemSaveLocation);
+                auto block = cast<CGameCtnBlockInfo@>(ana.Article.LoadedNod);
+                if (block is null || IsBlockCompleted(block.Name)) {
+                    continue;
                 }
+
+                if (string(block.Name).ToLower().Contains("water")) {
+                    log("Water cannot be converted to a custom block/item. Skipping.", LogLevel::Info, 59, "ExploreNode");
+                    continue;
+                }
+
+                if (utils.IsBlacklisted(block.Name)) {
+                    log("Block " + block.Name + " is blacklisted. Skipping.", LogLevel::Info, 64, "ExploreNode");
+                    continue;
+                }
+
+                string itemSaveLocation = "VanillaBlockToCustomItem/" + _folder + block.Name + ".Item.Gbx";
+                indexedBlocks.InsertLast(block);
+                saveLocations.InsertLast(itemSaveLocation);
+
+                totalBlocksConverted++;
+            }
+        }
+    }
+
+    bool IsBlockCompleted(const string &in blockName) {
+        return completedBlocks.Exists(blockName.ToLower());
+    }
+
+    void ProcessIndexedBlocks() {
+        for (uint i = 0; i < indexedBlocks.Length; i++) {
+            CGameCtnBlockInfo@ block = indexedBlocks[i];
+            string itemSaveLocation = saveLocations[i];
+            string fullItemSaveLocation = IO::FromUserGameFolder("Items/" + itemSaveLocation);
+
+            if (!IO::FileExists(fullItemSaveLocation)) {
+                log("Converting and saving block to item: " + block.Name, LogLevel::Info, 135, "ProcessIndexedBlocks");
+                conv.ConvertBlockToItem(block, itemSaveLocation);
+            } else {
+                log("Item already exists, skipping: " + block.Name, LogLevel::Info, 138, "ProcessIndexedBlocks");
             }
         }
     }
@@ -85,12 +109,8 @@ namespace BlockToItem {
             auto editor = cast<CGameCtnEditorCommon@>(app.Editor);
             auto pmt = editor.PluginMapType;
 
-            // pmt.RemoveAll();
-            
             yield();
-            
-            // pmt.PlaceMode = CGameEditorPluginMap::EPlaceMode::FreeBlock;
-            // pmt.PlaceMode = CGameEditorPluginMap::EPlaceMode::Block;
+
             pmt.PlaceMode = CGameEditorPluginMap::EPlaceMode::GhostBlock;
 
             yield();
@@ -151,7 +171,7 @@ namespace BlockToItem {
             yield();
 
             app.BasicDialogs.DialogSaveAs_OnValidate();
-            
+
             yield();
 
             cast<CGameEditorItem>(app.Editor).Exit();
@@ -168,7 +188,6 @@ namespace BlockToItem {
             @pmt = editor.PluginMapType;
             pmt.Undo();
 
-            // pmt.RemoveAll();
         }
     }
 
@@ -184,9 +203,9 @@ namespace BlockToItem {
 
         int CountBlocks(CGameCtnArticleNodeDirectory@ parentNode, bool justNadeoBlocks = true, bool containsWater = false) {
             int count = 0;
-            for(uint i = 0; i < parentNode.ChildNodes.Length; i++) {
+            for (uint i = 0; i < parentNode.ChildNodes.Length; i++) {
                 CGameCtnArticleNode@ node = parentNode.ChildNodes[i];
-                if(node.IsDirectory) {
+                if (node.IsDirectory) {
                     count += CountBlocks(cast<CGameCtnArticleNodeDirectory@>(node), justNadeoBlocks);
                 } else {
                     CGameCtnBlock@ block = cast<CGameCtnBlock@>(node);
@@ -201,6 +220,71 @@ namespace BlockToItem {
 
         int BlocksLeftToConvert() {
             return totalBlocks - totalBlocksConverted;
+        }
+
+        void FindBlock(CGameCtnEditorCommon@ editor, CGameCtnBlockInfo@ blockInfo, int2 originalPos) {
+            @editor = cast<CGameCtnEditorCommon@>(GetApp().Editor);
+
+            mouse.JiggleOverTime("left right", 20, 0.1f, 10.0f);
+
+            if (editor !is null && editor.PickedBlock !is null && editor.PickedBlock.BlockInfo.Name == blockInfo.Name) {
+                log("Clicking to confirm the selection.", LogLevel::Info, 261, "FindBlock");
+                mouse.Click();
+                yield(10);
+            } else {
+                log("Moving to original position.", LogLevel::Info, 265, "FindBlock");
+                mouse.Move(originalPos);
+
+                log("Trying directional movement.", LogLevel::Info, 268, "FindBlock");
+                mouse.MoveDirectionOverTime(MouseDirection::downLeft, 20, 10.0f);
+                mouse.Move(originalPos);
+                mouse.MoveDirectionOverTime(MouseDirection::left, 20, 10.0f);
+                mouse.Move(originalPos);
+                mouse.MoveDirectionOverTime(MouseDirection::upLeft, 20, 10.0f);
+                mouse.Move(originalPos);
+                mouse.MoveDirectionOverTime(MouseDirection::up, 20, 10.0f);
+                mouse.Move(originalPos);
+                mouse.MoveDirectionOverTime(MouseDirection::upRight, 20, 10.0f);
+                mouse.Move(originalPos);
+                mouse.MoveDirectionOverTime(MouseDirection::right, 20, 10.0f);
+                mouse.Move(originalPos);
+                mouse.MoveDirectionOverTime(MouseDirection::downRight, 20, 10.0f);
+                mouse.Move(originalPos);
+                mouse.MoveDirectionOverTime(MouseDirection::down, 20, 10.0f);
+                mouse.Move(originalPos);
+
+                log("Trying circle jiggle pattern.", LogLevel::Info, 286, "FindBlock");
+                mouse.JiggleOverTime("circle", 20, 0.1f, 10.0f);
+                mouse.Move(originalPos);
+                mouse.JiggleOverTime("circle", 20, 0.1f, 20.0f);
+                mouse.Move(originalPos);
+                mouse.JiggleOverTime("circle", 20, 0.1f, 30.0f);
+                mouse.Move(originalPos);
+                mouse.JiggleOverTime("circle", 20, 0.1f, 40.0f);
+                mouse.Move(originalPos);
+                mouse.JiggleOverTime("circle", 20, 0.1f, 50.0f);
+                mouse.Move(originalPos);
+
+                log("Trying spiral jiggle pattern.", LogLevel::Info, 298, "FindBlock");
+                mouse.JiggleOverTime("archimedean spiral", 20, 0.1f, 1.0f);
+                mouse.Move(originalPos);
+                mouse.JiggleOverTime("archimedean spiral", 20, 0.1f, 2.0f);
+                mouse.Move(originalPos);
+                mouse.JiggleOverTime("archimedean spiral", 20, 0.1f, 3.0f);
+                mouse.Move(originalPos);
+                mouse.JiggleOverTime("archimedean spiral", 20, 0.1f, 4.0f);
+                mouse.Move(originalPos);
+
+                if (editor.PickedBlock is null || editor.PickedBlock.BlockInfo.Name != blockInfo.Name) {
+                    log("Unable to find the block, requesting manual selection.", LogLevel::Error, 309, "FindBlock");
+                    ShowManualSelectionUI();
+                }
+            }
+        }
+
+        void ShowManualSelectionUI() {
+            log("Showing manual selection UI.", LogLevel::Info, 316, "ShowManualSelectionUI");
+            NotifyError("Unable to find the block, please select it manually.");
         }
     }
 }
