@@ -11,7 +11,7 @@ namespace BlockToBlock {
     dictionary completedBlocks;
 
     void Init() {
-        log("Initializing BlockToBlock.", LogLevel::Info, 16, "Init");
+        log("Initializing BlockToBlock.", LogLevel::Info, 14, "Init");
 
         @utils = Utils();
         @conv = Conversion();
@@ -27,7 +27,7 @@ namespace BlockToBlock {
     }
 
     void ConversionPreparation() {
-        log("Converting block to block.", LogLevel::Info, 33, "ConversionPreparation");
+        log("Converting block to block.", LogLevel::Info, 30, "ConversionPreparation");
 
         CGameCtnApp@ app = GetApp();
         CGameCtnEditorCommon@ editor = cast<CGameCtnEditorCommon@>(app.Editor);
@@ -107,7 +107,7 @@ namespace BlockToBlock {
         int2 button_exitMesh = int2(30, 1050);
 
         void ConvertBlockToBlock(CGameCtnBlockInfo@ blockInfo, const string &in blockSaveLocation) {
-            log("Converting block to block.", LogLevel::Info, 116, "ConvertBlockToBlock");
+            log("Converting block to block.", LogLevel::Info, 110, "ConvertBlockToBlock");
 
             CGameCtnApp@ app = GetApp();
             CGameCtnEditorCommon@ editor = cast<CGameCtnEditorCommon@>(app.Editor);
@@ -128,7 +128,7 @@ namespace BlockToBlock {
             yield(15);
 
             int nBlocks = pmt.Blocks.Length;
-            log("Starting to place the block: " + blockInfo.Name, LogLevel::Info, 137, "ConvertBlockToBlock");
+            log("Starting to place the block: " + blockInfo.Name, LogLevel::Info, 131, "ConvertBlockToBlock");
             print("-------------------- " + blockInfo.Name);
             while (pmt.Blocks.Length == uint(nBlocks)) {
                 mouse.Click();
@@ -150,31 +150,31 @@ namespace BlockToBlock {
             }
 
             yield(15);
-            log("Adding mesh to block.", LogLevel::Info, 165, "ConvertBlockToBlock");
+            log("Adding mesh to block.", LogLevel::Info, 153, "ConvertBlockToBlock");
             mouse.Move(button_addMesh);
             mouse.Click();
             
             yield(15);
 
-            log("Exiting mesh modeler mode.", LogLevel::Info, 171, "ConvertBlockToBlock");
+            log("Exiting mesh modeler mode.", LogLevel::Info, 159, "ConvertBlockToBlock");
             mouse.Move(button_exitMesh);
             mouse.Click();
 
             yield(15);
 
-            log("Clicking the button to set the icon.", LogLevel::Info, 177, "ConvertBlockToBlock");
+            log("Clicking the button to set the icon.", LogLevel::Info, 165, "ConvertBlockToBlock");
             mouse.Move(button_Icon);
             mouse.Click();
 
             yield(15);
 
-            log("Clicking the button to set the direction icon.", LogLevel::Info, 183, "ConvertBlockToBlock");
+            log("Clicking the button to set the direction icon.", LogLevel::Info, 171, "ConvertBlockToBlock");
             mouse.Move(button_DirectionIcon);
             mouse.Click();
 
             yield(15);
 
-            log("Saving block to: " + blockSaveLocation, LogLevel::Info, 189, "ConvertBlockToBlock");
+            log("Saving block to: " + blockSaveLocation, LogLevel::Info, 177, "ConvertBlockToBlock");
             CGameEditorItem@ editorItem = cast<CGameEditorItem>(app.Editor);
             yield(15);
 
@@ -258,14 +258,14 @@ namespace BlockToBlock {
             mouse.JiggleOverTime("left right", 20, 0.1f, 10.0f);
 
             if (editor !is null && editor.PickedBlock !is null && editor.PickedBlock.BlockInfo.Name == blockInfo.Name) {
-                log("Clicking to confirm the selection.", LogLevel::Info, 156, "ConvertBlockToBlock");
+                log("Clicking to confirm the selection.", LogLevel::Info, 261, "FindBlock");
                 mouse.Click();
                 yield(10);
             } else {
-                log("Moving to original position.", LogLevel::Info, 156, "ConvertBlockToBlock");
+                log("Moving to original position.", LogLevel::Info, 265, "FindBlock");
                 mouse.Move(originalPos);
 
-                log("Trying directional movement.", LogLevel::Info, 156, "ConvertBlockToBlock");
+                log("Trying directional movement.", LogLevel::Info, 268, "FindBlock");
                 mouse.MoveDirectionOverTime(MouseDirection::downLeft, 20, 10.0f);
                 mouse.Move(originalPos);
                 mouse.MoveDirectionOverTime(MouseDirection::left, 20, 10.0f);
@@ -283,7 +283,7 @@ namespace BlockToBlock {
                 mouse.MoveDirectionOverTime(MouseDirection::down, 20, 10.0f);
                 mouse.Move(originalPos);
 
-                log("Trying circle jiggle pattern.", LogLevel::Info, 156, "ConvertBlockToBlock");
+                log("Trying circle jiggle pattern.", LogLevel::Info, 286, "FindBlock");
                 mouse.JiggleOverTime("circle", 20, 0.1f, 10.0f);
                 mouse.Move(originalPos);
                 mouse.JiggleOverTime("circle", 20, 0.1f, 20.0f);
@@ -295,7 +295,7 @@ namespace BlockToBlock {
                 mouse.JiggleOverTime("circle", 20, 0.1f, 50.0f);
                 mouse.Move(originalPos);
 
-                log("Trying spiral jiggle pattern.", LogLevel::Info, 156, "ConvertBlockToBlock");
+                log("Trying spiral jiggle pattern.", LogLevel::Info, 298, "FindBlock");
                 mouse.JiggleOverTime("archimedean spiral", 20, 0.1f, 1.0f);
                 mouse.Move(originalPos);
                 mouse.JiggleOverTime("archimedean spiral", 20, 0.1f, 2.0f);
@@ -306,14 +306,14 @@ namespace BlockToBlock {
                 mouse.Move(originalPos);
 
                 if (editor.PickedBlock is null || editor.PickedBlock.BlockInfo.Name != blockInfo.Name) {
-                    log("Unable to find the block, requesting manual selection.", LogLevel::Error, 156, "ConvertBlockToBlock");
+                    log("Unable to find the block, requesting manual selection.", LogLevel::Error, 309, "FindBlock");
                     ShowManualSelectionUI();
                 }
             }
         }
 
         void ShowManualSelectionUI() {
-            log("Showing manual selection UI.", LogLevel::Info, 156, "ConvertBlockToBlock");
+            log("Showing manual selection UI.", LogLevel::Info, 316, "ShowManualSelectionUI");
             NotifyError("Unable to find the block, please select it manually.");
         }
     }

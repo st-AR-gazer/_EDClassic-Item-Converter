@@ -9,7 +9,7 @@ enum Conversion {
 Conversion currentConversion = Conversion::None;
 
 void aMain() {
-    // if (!_Game::IsInEditor()) { log("Not in editor. Exiting.", LogLevel::Error, 12, "Main"); return; }
+    // if (!_Game::IsInEditor()) { log("Not in editor. Exiting.", LogLevel::Error, 12, "aMain"); return; }
 
     PrepareConversion();
 
@@ -18,7 +18,7 @@ void aMain() {
 
     return;
 
-    if (currentConversion == Conversion::None) { log("No conversion type selected. Exiting.", LogLevel::Error, 16, "Main"); return; }
+    if (currentConversion == Conversion::None) { log("No conversion type selected. Exiting.", LogLevel::Error, 21, "aMain"); return; }
     if (currentConversion == Conversion::blockToBlock) {
         BlockToBlock::Init();
     } else if (currentConversion == Conversion::blockToItem) {
@@ -41,11 +41,11 @@ MouseController@ mouse = null;
 void PrepareConversion() {
     @lib = GetLibraryFunctions();
     if (lib is null) {
-        log("Failed to load library functions.", LogLevel::Error, 43, "PrepareConversion");
+        log("Failed to load library functions.", LogLevel::Error, 44, "PrepareConversion");
         return;
     }
     
-    log("Preparing conversion.", LogLevel::Info, 37, "PrepareConversion");
+    log("Preparing conversion.", LogLevel::Info, 48, "PrepareConversion");
     InitBlockedArrays();
     
     @mouse = MouseController(lib);
@@ -53,7 +53,7 @@ void PrepareConversion() {
     screenHeight = Draw::GetHeight();
     screenWidth = Draw::GetWidth();
 
-    log("Screen Dimensions: " + screenWidth + "x" + screenHeight, LogLevel::Info, 52, "PrepareConversion");
+    log("Screen Dimensions: " + screenWidth + "x" + screenHeight, LogLevel::Info, 56, "PrepareConversion");
 }
 
 Import::Library@ GetLibraryFunctions() {
