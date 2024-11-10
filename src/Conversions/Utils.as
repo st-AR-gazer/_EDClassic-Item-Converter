@@ -1,5 +1,6 @@
 bool manualSelectionNeeded = false;
 bool blockFound = false;
+int detectionFrameThreshold = 3;
 
 void FindBlock(CGameCtnEditorCommon@ editor, CGameCtnBlockInfo@ blockInfo, int2 originalPos, int pixelSkip = 2) {
     @editor = cast<CGameCtnEditorCommon@>(GetApp().Editor);
@@ -43,33 +44,17 @@ void FindBlock(CGameCtnEditorCommon@ editor, CGameCtnBlockInfo@ blockInfo, int2 
             mouse.Move(centerPos);
         }
 
-        int chunkWidth = screenWidth / 20;
-        int chunkHeight = screenHeight / 20;
+        // 5x5 Grid search
+        int chunkWidth = screenWidth / 5;
+        int chunkHeight = screenHeight / 5;
 
-        array<int2> chunkOrder;
-        int centerX = 10;
-        int centerY = 10;
-
-        int x = centerX;
-        int y = centerY;
-        int dx = 0;
-        int dy = -1;
-        int maxIters = 400;
-
-        for (int step = 0; step < maxIters; step++) {
-            if (x >= 0 && x < 20 && y >= 0 && y < 20) {
-                chunkOrder.InsertLast(int2(x, y));
-            }
-
-            if ((x == y) || (x > 0 && x == -y) || (x < 0 && x == 1 - y)) {
-                int temp = dx;
-                dx = -dy;
-                dy = temp;
-            }
-
-            x += dx;
-            y += dy;
-        }
+        array<int2> chunkOrder = {
+            int2(2, 2), int2(2, 3), int2(3, 3), int2(3, 2), int2(3, 1),
+            int2(2, 1), int2(1, 1), int2(1, 2), int2(1, 3), int2(1, 4),
+            int2(2, 4), int2(3, 4), int2(4, 4), int2(4, 3), int2(4, 2),
+            int2(4, 1), int2(4, 0), int2(3, 0), int2(2, 0), int2(1, 0),
+            int2(0, 0), int2(0, 1), int2(0, 2), int2(0, 3), int2(0, 4)
+        };
 
         for (uint i = 0; i < chunkOrder.Length && !blockFound; i++) {
             int2 chunk = chunkOrder[i];
@@ -112,10 +97,18 @@ void FindBlock(CGameCtnEditorCommon@ editor, CGameCtnBlockInfo@ blockInfo, int2 
 }
 
 bool CheckAndClickBlock(CGameCtnEditorCommon@ editor, CGameCtnBlockInfo@ blockInfo) {
+    int consecutiveDetectionFrames = 0;
+
     if (editor !is null && editor.PickedBlock !is null && editor.PickedBlock.BlockInfo.Name == blockInfo.Name) {
-        log("Block found! Confirming selection.", LogLevel::Info, 261, "FindBlock");
-        mouse.Click();
-        return true;
+        consecutiveDetectionFrames++;
+        if (consecutiveDetectionFrames >= detectionFrameThreshold) {
+            log("Block found! Confirming selection after consistent detection.", LogLevel::Info, 261, "FindBlock");
+            mouse.Click();
+            consecutiveDetectionFrames = 0;
+            return true;
+        }
+    } else {
+        consecutiveDetectionFrames = 0;
     }
     return false;
 }
@@ -124,7 +117,7 @@ bool MoveDirectionWithCheckAndClick(CGameCtnEditorCommon@ editor, CGameCtnBlockI
     int frames = distance / step;
     for (int i = 0; i < frames && !blockFound; i++) {
         mouse.MoveDirectionOverTime(dir, step);
-        
+
         if (CheckAndClickBlock(editor, blockInfo)) {
             blockFound = true;
             return true;

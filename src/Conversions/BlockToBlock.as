@@ -150,28 +150,27 @@ namespace BlockToBlock {
 
             yield(15);
 
-            // For the same reason as above, we don't need to add a mesh or icon, in this case they only slow down the process with unnessesary steps x.
-            // log("Adding mesh to block.", LogLevel::Info, 153, "ConvertBlockToBlock");
-            // mouse.Move(button_addMesh);
-            // mouse.Click();
+            log("Adding mesh to block.", LogLevel::Info, 153, "ConvertBlockToBlock");
+            mouse.Move(button_addMesh);
+            mouse.Click();
             
-            // yield(15);
+            yield(15);
 
-            // log("Exiting mesh modeler mode.", LogLevel::Info, 159, "ConvertBlockToBlock");
-            // mouse.Move(button_exitMesh);
-            // mouse.Click();
+            log("Exiting mesh modeler mode.", LogLevel::Info, 159, "ConvertBlockToBlock");
+            mouse.Move(button_exitMesh);
+            mouse.Click();
 
-            // yield(15);
+            yield(15);
 
-            // log("Clicking the button to set the icon.", LogLevel::Info, 165, "ConvertBlockToBlock");
-            // mouse.Move(button_Icon);
-            // mouse.Click();
+            log("Clicking the button to set the icon.", LogLevel::Info, 165, "ConvertBlockToBlock");
+            mouse.Move(button_Icon);
+            mouse.Click();
 
-            // yield(15);
+            yield(15);
 
-            // log("Clicking the button to set the direction icon.", LogLevel::Info, 171, "ConvertBlockToBlock");
-            // mouse.Move(button_DirectionIcon);
-            // mouse.Click();
+            log("Clicking the button to set the direction icon.", LogLevel::Info, 171, "ConvertBlockToBlock");
+            mouse.Move(button_DirectionIcon);
+            mouse.Click();
 
             // yield(15);
 
