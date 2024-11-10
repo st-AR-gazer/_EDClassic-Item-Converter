@@ -1,4 +1,4 @@
-namespace BlockToBlock {
+namespace BlockToBlock_Links {
     Utils@ utils;
     Conversion@ conv;
 
@@ -16,7 +16,7 @@ namespace BlockToBlock {
         @utils = Utils();
         @conv = Conversion();
 
-        string[] completedFiles = IO::IndexFolder(IO::FromUserGameFolder("Blocks/VanillaBlockToCustomBlock"), true);
+        string[] completedFiles = IO::IndexFolder(IO::FromUserGameFolder("Blocks/VanillaBlockToCustomBlock-Links"), true);
         for (uint i = 0; i < completedFiles.Length; i++) {
             string withBlock = Path::GetFileNameWithoutExtension(completedFiles[i]);
             string completedBlockName = Path::GetFileNameWithoutExtension(withBlock);
@@ -70,7 +70,7 @@ namespace BlockToBlock {
                     continue;
                 }
 
-                string blockSaveLocation = "VanillaBlockToCustomBlock/" + _folder + block.Name + ".Block.Gbx";
+                string blockSaveLocation = "VanillaBlockToCustomBlock-Links/" + _folder + block.Name + ".Block.Gbx";
                 indexedBlocks.InsertLast(block);
                 saveLocations.InsertLast(blockSaveLocation);
 
@@ -78,6 +78,7 @@ namespace BlockToBlock {
             }
         }
     }
+
 
     bool IsBlockCompleted(const string &in blockName) {
         return completedBlocks.Exists(blockName.ToLower());
@@ -100,11 +101,12 @@ namespace BlockToBlock {
     }
 
     class Conversion {
-        int2 button_Icon = int2(445, 255);
-        int2 button_DirectionIcon = int2(985, 550);
+        // We just want the link so we don't need to convert or add anything here.
+        // int2 button_Icon = int2(445, 255);
+        // int2 button_DirectionIcon = int2(985, 550);
 
-        int2 button_addMesh = int2(440, 420);
-        int2 button_exitMesh = int2(30, 1050);
+        // int2 button_addMesh = int2(440, 420);
+        // int2 button_exitMesh = int2(30, 1050);
 
         void ConvertBlockToBlock(CGameCtnBlockInfo@ blockInfo, const string &in blockSaveLocation) {
             log("Converting block to block.", LogLevel::Info, 110, "ConvertBlockToBlock");

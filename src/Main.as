@@ -3,20 +3,21 @@ enum Conversion {
     blockToBlock = 1,
     blockToItem = 2,
     itemToItem = 3,
+    BlockToBlock_Links = 4
 }
 
 [Setting category="Conversion" name="Conversion Type"]
 Conversion currentConversion = Conversion::None;
 
-void aMain() {
+void Main() {
     // if (!_Game::IsInEditor()) { log("Not in editor. Exiting.", LogLevel::Error, 12, "aMain"); return; }
 
     PrepareConversion();
 
-    mouse.Move(985, 550);
-    print(mouse.GetPosition());
-
-    return;
+    // Testing the 'Get Position' function (it doesn't import the functions xD)
+    // mouse.Move(985, 550);
+    // print(mouse.GetPosition());
+    // return;
 
     if (currentConversion == Conversion::None) { log("No conversion type selected. Exiting.", LogLevel::Error, 21, "aMain"); return; }
     if (currentConversion == Conversion::blockToBlock) {
@@ -25,6 +26,8 @@ void aMain() {
         BlockToItem::Init();
     } else if (currentConversion == Conversion::itemToItem) {
         ItemToItem::Init();
+    } else if (currentConversion == Conversion::BlockToBlock_Links) {
+        BlockToBlock_Links::Init();
     }
 }
 
@@ -80,6 +83,20 @@ Import::Library@ GetLibraryFunctions() {
 
 
 
+// MouseController Movement and Click safety
+[Setting category="Conversion" name="Safety Key"]
+VirtualKey safetyKey = VirtualKey::F1;
+
+bool isSafetyPressed = false;
+
+void OnKeyPressed(bool isDown, VirtualKey key) {
+    print("key is down: " + isDown + ", key: " + key);
+    if (key == safetyKey && isDown) {
+        isSafetyPressed = true;
+        return;
+    }
+    isSafetyPressed = false;
+}
 
 enum MouseDirection {
     none = 0,
@@ -94,7 +111,6 @@ enum MouseDirection {
     downLeft = 7,
     downRight = 8
 }
-
 
 class MouseController {
     Import::Function@ get_position_x;
@@ -112,8 +128,8 @@ class MouseController {
 
     MouseController(Import::Library@ lib) {
         if (lib !is null) {
-            // @get_position_x = lib.GetFunction("GetPositionX");
-            // @get_position_y = lib.GetFunction("GetPositionY");
+            @get_position_x = lib.GetFunction("GetPositionX");
+            @get_position_y = lib.GetFunction("GetPositionY");
 
             @r_click = lib.GetFunction("RClick");
             @click = lib.GetFunction("Click");
@@ -128,6 +144,8 @@ class MouseController {
 
     void Click() {
         if (click is null) return;
+        if (isSafetyPressed) return;
+
         click.Call();
     }
 
@@ -150,6 +168,9 @@ class MouseController {
 
     void Move(int x, int y) {
         if (move is null) return;
+        if (isSafetyPressed) return;
+        print("Moving to: " + x + ", " + y);
+
         move.Call(x, y);
     }
 
@@ -160,6 +181,8 @@ class MouseController {
 
     void MoveRelative(int x, int y) {
         if (move_relative is null) return;
+        if (isSafetyPressed) return;
+
         move_relative.Call(x, y);
     }
 
@@ -175,6 +198,7 @@ class MouseController {
     private int GetPositionX() {
         if (get_position_x !is null) {
             return get_position_x.CallInt32();
+            if (isSafetyPressed) return 0;
         }
         print("Failed to get position x (get_position_x is null)");
         return 0;
@@ -182,6 +206,7 @@ class MouseController {
 
     private int GetPositionY() {
         if (get_position_y !is null) {
+            if (isSafetyPressed) return 0;
             return get_position_y.CallInt32();
         }
         print("Failed to get position y (get_position_y is null)");
@@ -198,79 +223,90 @@ class MouseController {
         float deltaY = (endY - startY) / frames;
 
         for (int i = 0; i < frames; i++) {
-            mouse.MoveRelative(deltaX, deltaY);
+            mouse.MoveRelative(int(deltaX), int(deltaY));
             yield(1);
         }
     }
-
 
     /* Jiggle */
 
-    void JiggleOverTime(const string &in pattern, int frames, float step, float radius) {
+    void Jiggle(int frames, int stepDistance, int radius, const string &in jiggleType) {
         for (int i = 0; i < frames; i++) {
-            mouse.Jiggle(pattern, step, radius);
-            yield(1);
+            JiggleOverTime(i, frames, stepDistance, radius, jiggleType);
+            yield();
         }
     }
 
-    private float theta = 0.0f;
-    private float squareSideLength = 0.0f;
-    private int squareStep = 0;
-    private void Jiggle(const string &in type = "archimedean spiral", float step = 0.1f, float multiplier = 1.0f, float radius = 50.0f) {
-        if (move_relative is null) return;
-
-        if (type == "left right") {
-            MoveRelative(multiplier, 0);
-            MoveRelative(-multiplier, 0);
-        } else if (type == "up down") {
-            MoveRelative(0, multiplier);
-            MoveRelative(0, -multiplier);
-        } else if (type == "archimedean spiral") {
-            radius += multiplier;
-            theta += step;
-
-            float x = radius * Math::Cos(theta);
-            float y = radius * Math::Sin(theta);
-
-            MoveRelative(x, y);
-
-        } else if (type == "circle") {
-            theta += step;
-            float x = radius * Math::Cos(theta);
-            float y = radius * Math::Sin(theta);
-
-            MoveRelative(x, y);
-
-        } else if (type == "square") {
-            if (squareStep == 0) {
-                MoveRelative(multiplier, 0);
-                squareSideLength += multiplier;
-                if (squareSideLength >= radius) {
-                    squareStep = 1;
-                    squareSideLength = 0;
-                }
-            } else if (squareStep == 1) {
-                MoveRelative(0, multiplier);
-                squareSideLength += multiplier;
-                if (squareSideLength >= radius) {
-                    squareStep = 2;
-                    squareSideLength = 0;
-                }
-            } else if (squareStep == 2) {
-                MoveRelative(-multiplier, 0);
-                squareSideLength += multiplier;
-                if (squareSideLength >= radius) {
-                    squareStep = 3;
-                    squareSideLength = 0;
-                }
-            } else if (squareStep == 3) {
-                MoveRelative(0, -multiplier);
-                squareSideLength += multiplier;
-                if (squareSideLength >= radius) {
-                    squareStep = 0;
-                    squareSideLength = 0;
-                }
+    void JiggleOverTime(int frame, int totalFrames, int stepDistance, int radius, const string &in jiggleType) {
+        if (jiggleType == "left right") {
+            if (frame % 2 == 0) {
+                mouse.MoveRelative(stepDistance, 0);
+            } else {
+                mouse.MoveRelative(-stepDistance, 0);
             }
+        } else if (jiggleType == "up down") {
+            if (frame % 2 == 0) {
+                mouse.MoveRelative(0, -stepDistance);
+            } else {
+                mouse.MoveRelative(0, stepDistance);
+            }
+        } else if (jiggleType == "circle") {
+            float theta = (frame * ((2 * Math::PI) / totalFrames)) - (Math::PI / 2);
+            int x = int(radius * Math::Cos(theta));
+            int y = int(radius * Math::Sin(theta));
+
+            mouse.MoveRelative(x, y);
+        } else if (jiggleType == "square") {
+            int sideLength = totalFrames / 4;
+            int x = 0;
+            int y = 0;
+
+            if (frame < sideLength) {
+                x = stepDistance * (frame % sideLength);
+                y = 0;
+            } else if (frame < 2 * sideLength) {
+                x = radius;
+                y = stepDistance * ((frame - sideLength) % sideLength);
+            } else if (frame < 3 * sideLength) {
+                x = radius - stepDistance * ((frame - 2 * sideLength) % sideLength);
+                y = radius;
+            } else {
+                x = 0;
+                y = radius - stepDistance * ((frame - 3 * sideLength) % sideLength);
+            }
+
+            mouse.MoveRelative(x, y);
+        } else if (jiggleType == "archimedean spiral") {
+            float theta = frame * ((2 * Math::PI) / totalFrames);
+            float spiralRadius = stepDistance * theta;
+            int x = int(spiralRadius * Math::Cos(theta));
+            int y = int(spiralRadius * Math::Sin(theta));
+
+            mouse.MoveRelative(x, y);
+        } else if (jiggleType == "zig-zag") {
+            int segmentLength = totalFrames / 10;
+            if ((frame / segmentLength) % 2 == 0) {
+                mouse.MoveRelative(stepDistance, 0);
+            } else {
+                mouse.MoveRelative(-stepDistance, 0);
+            }
+        } else if (jiggleType == "triangle") {
+            int segmentLength = totalFrames / 3;
+            int x = 0;
+            int y = 0;
+
+            if (frame < segmentLength) {
+                x = stepDistance * (frame % segmentLength);
+                y = -stepDistance * (frame % segmentLength);
+            } else if (frame < 2 * segmentLength) {
+                x = stepDistance * ((frame - segmentLength) % segmentLength);
+                y = stepDistance * ((frame - segmentLength) % segmentLength);
+            } else {
+                x = -stepDistance * ((frame - 2 * segmentLength) % segmentLength);
+                y = 0;
+            }
+
+            mouse.MoveRelative(x, y);
         }
     }
 
@@ -279,14 +315,14 @@ class MouseController {
 
     /* Move Direction */
 
-    void MoveDirectionOverTime(MouseDirection dir, int frames, float step) {
+    void MoveDirection(MouseDirection dir, int frames, int step = 1) {
         for (int i = 0; i < frames; i++) {
-            mouse.MoveDirection(dir, step);
+            mouse.MoveDirectionOverTime(dir, step);
             yield(1);
         }
     }
 
-    private void MoveDirection(MouseDirection dir, float step = 1.0f) {
+    void MoveDirectionOverTime(MouseDirection dir, int step) {
         if (move_relative is null) return;
         
         switch (dir) {
@@ -318,6 +354,23 @@ class MouseController {
     }
 
     /* End Move Direction */
+
+    /* Scaling Factor */
+
+    float GetScaleFactorForRadius() {
+        return MeasureScalingFactor(10);
+    }
+
+    float MeasureScalingFactor(int testRadiusUnits) {
+        int2 startPosition = GetPosition();
+        MoveRelative(testRadiusUnits, 0);
+        int2 endPosition = GetPosition();
+
+        int pixelDistance = endPosition.x - startPosition.x;
+        if (testRadiusUnits == 0) return 0;
+        return float(pixelDistance) / float(testRadiusUnits);
+    }
+
 
     /* End Movement Over Time */
 }
