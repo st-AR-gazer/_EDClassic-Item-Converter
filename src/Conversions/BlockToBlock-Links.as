@@ -16,7 +16,7 @@ namespace BlockToBlock_Links {
         @utils = Utils();
         @conv = Conversion();
 
-        string[] completedFiles = IO::IndexFolder(IO::FromUserGameFolder("Blocks/VanillaBlockToCustomBlock-Links"), true);
+        string[] completedFiles = IO::IndexFolder(IO::FromUserGameFolder("Blocks/Vanilla_EDClassicToBlock-Links"), true);
         for (uint i = 0; i < completedFiles.Length; i++) {
             string withBlock = Path::GetFileNameWithoutExtension(completedFiles[i]);
             string completedBlockName = Path::GetFileNameWithoutExtension(withBlock);
@@ -70,7 +70,7 @@ namespace BlockToBlock_Links {
                     continue;
                 }
 
-                string blockSaveLocation = "VanillaBlockToCustomBlock-Links/" + _folder + block.Name + ".Block.Gbx";
+                string blockSaveLocation = "Vanilla_EDClassicToBlock-Links/" + _folder + block.Name + ".Block.Gbx";
                 indexedBlocks.InsertLast(block);
                 saveLocations.InsertLast(blockSaveLocation);
 

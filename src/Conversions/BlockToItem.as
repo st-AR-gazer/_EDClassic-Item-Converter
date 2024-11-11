@@ -17,7 +17,7 @@ namespace BlockToItem {
         @conv = Conversion();
 
         // Load cached completed blocks
-        string[] completedFiles = IO::IndexFolder(IO::FromUserGameFolder("Items/VanillaBlockToCustomItem"), true);
+        string[] completedFiles = IO::IndexFolder(IO::FromUserGameFolder("Items/Vanilla_EDClassicToItem"), true);
         for (uint i = 0; i < completedFiles.Length; i++) {
             string withBlock = Path::GetFileNameWithoutExtension(completedFiles[i]);
             string completedBlockName = Path::GetFileNameWithoutExtension(withBlock);
@@ -70,7 +70,7 @@ namespace BlockToItem {
                     continue;
                 }
 
-                string itemSaveLocation = "VanillaBlockToCustomItem/" + _folder + block.Name + ".Item.Gbx";
+                string itemSaveLocation = "Vanilla_EDClassicToItem/" + _folder + block.Name + ".Item.Gbx";
                 indexedBlocks.InsertLast(block);
                 saveLocations.InsertLast(itemSaveLocation);
 

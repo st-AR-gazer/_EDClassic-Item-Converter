@@ -16,7 +16,7 @@ namespace BlockToBlock {
         @utils = Utils();
         @conv = Conversion();
 
-        string[] completedFiles = IO::IndexFolder(IO::FromUserGameFolder("Blocks/VanillaBlockToCustomBlock"), true);
+        string[] completedFiles = IO::IndexFolder(IO::FromUserGameFolder("Blocks/Vanilla_EDClassicToBlock"), true);
         for (uint i = 0; i < completedFiles.Length; i++) {
             string withBlock = Path::GetFileNameWithoutExtension(completedFiles[i]);
             string completedBlockName = Path::GetFileNameWithoutExtension(withBlock);
@@ -70,7 +70,7 @@ namespace BlockToBlock {
                     continue;
                 }
 
-                string blockSaveLocation = "VanillaBlockToCustomBlock/" + _folder + block.Name + ".Block.Gbx";
+                string blockSaveLocation = "Vanilla_EDClassicToBlock/" + _folder + block.Name + ".Block.Gbx";
                 indexedBlocks.InsertLast(block);
                 saveLocations.InsertLast(blockSaveLocation);
 
@@ -186,7 +186,7 @@ namespace BlockToBlock {
             editorItem.IdName = blockInfo.Name;
 
             yield(15);
-            
+
             editorItem.FileSaveAs();
 
             yield(3);
@@ -204,10 +204,7 @@ namespace BlockToBlock {
             yield();
 
             cast<CGameEditorItem>(app.Editor).Exit();
-
-            while (cast<CGameEditorItem>(app.Editor) !is null) {
-                yield();
-            }
+            while (cast<CGameEditorItem>(app.Editor) !is null) { yield(); }
 
             yield();
 
