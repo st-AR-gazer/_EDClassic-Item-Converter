@@ -131,12 +131,8 @@ namespace BlockToItem {
             yield();
 
             while (cast<CGameEditorItem>(app.Editor) is null) {
-                @editor = cast<CGameCtnEditorCommon@>(app.Editor);
-                if (editor !is null && editor.PickedBlock !is null && editor.PickedBlock.BlockInfo.IdName == blockInfo.Name) {
-                    log("Clicking to confirm selection.", LogLevel::Info, 116, "ConvertBlockToItem");
-                    FindBlock(editor, blockInfo, int2(screenHeight / 2, screenWidth / 2));
-                }
-                yield();
+                FindBlock(@editor, blockInfo, int2(screenHeight / 2, screenWidth / 2));
+                yield(5);
             }
 
             log("Clicking the button to set the icon.", LogLevel::Info, 123, "ConvertBlockToItem");
