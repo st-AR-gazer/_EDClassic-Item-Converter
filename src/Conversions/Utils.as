@@ -1,6 +1,9 @@
 bool manualSelectionNeeded = false;
 bool blockFound = false;
 
+[Setting category="Conversion" name="yield time" min="0" max="20"]
+int S_yieldTime = 5;
+
 array<int2> GenerateSpiralOrder(int gridSize, int centerX, int centerY) {
     array<int2> spiralOrder;
     spiralOrder.InsertLast(int2(centerX, centerY));
@@ -69,7 +72,7 @@ bool MoveDirectionWithCheckAndClick(CGameCtnEditorCommon@ editor, CGameCtnBlockI
             return true;
         }
 
-        yield(1);
+        yield(S_yieldTime);
     }
     return false;
 }
@@ -152,7 +155,7 @@ void FindBlock(CGameCtnEditorCommon@ editor, CGameCtnBlockInfo@ blockInfo, int2 
                         return;
                     }
 
-                    yield(1);
+                    yield(S_yieldTime);
                 }
             }
 
@@ -166,67 +169,3 @@ void FindBlock(CGameCtnEditorCommon@ editor, CGameCtnBlockInfo@ blockInfo, int2 
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-// Please ignore, it's my attempt at a more 'dynamic' searching dings, I failed spectacularly xdd
-
-// bool manualSelectionNeeded = false;
-
-// float CalculateNonLinearScalingFactor(int originalValue, float baseScale = 10.0) {
-//     return baseScale * Math::Log(float(originalValue) + 1.0);
-// }
-
-// void FindBlock(CGameCtnEditorCommon@ editor, CGameCtnBlockInfo@ blockInfo, int2 originalPos) {
-//     @editor = cast<CGameCtnEditorCommon@>(GetApp().Editor);
-
-//     if (!manualSelectionNeeded) {
-//         float baseScale = 10.0;
-
-//         int[] radii = {1, 2, 3/*, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15*/};
-//         int[] frameCounts = {30, 50, 70/*, 90, 110, 130, 150, 170, 190, 210, 230, 250, 270, 290, 310*/};
-
-//         for (uint i = 0; i < radii.Length; i++) {
-//             mouse.Move(originalPos);
-
-//             int pixelRadius = int(CalculateNonLinearScalingFactor(radii[i], baseScale));
-
-//             mouse.MoveRelative(-pixelRadius, 0);
-
-//             if (JiggleWithCheck(editor, blockInfo, "circle", 1, frameCounts[i], 1, pixelRadius)) return;
-
-//             mouse.Move(originalPos);
-//         }
-
-//         if (editor.PickedBlock is null || editor.PickedBlock.BlockInfo.Name != blockInfo.Name) {
-//             log("Unable to find the block, requesting manual selection.", LogLevel::Error, 309, "FindBlock");
-//             manualSelectionNeeded = true;
-//             NotifyError("Unable to find the block, please select it manually.");
-//         }
-//     }
-// }
-
-
-// bool JiggleWithCheck(CGameCtnEditorCommon@ editor, CGameCtnBlockInfo@ blockInfo, const string &in type, int step, int frames, int movement, int radius) {
-//     @editor = cast<CGameCtnEditorCommon@>(GetApp().Editor);
-
-//     for (int i = 0; i < frames; i++) {
-//         mouse.JiggleOverTime(i, frames, step, radius, type);
-
-//         if (editor !is null && editor.PickedBlock !is null && editor.PickedBlock.BlockInfo.Name == blockInfo.Name) {
-//             log("Clicking to confirm the selection.", LogLevel::Info, 261, "FindBlock");
-//             mouse.Click();
-//             return true;
-//         }
-
-//         yield(1);
-//     }
-//     return false; 
-// }
