@@ -55,7 +55,7 @@ array<int2> GenerateSpiralOrder(int gridSize, int centerX, int centerY) {
 
 bool CheckAndClickBlock(CGameCtnEditorCommon@ editor, CGameCtnBlockInfo@ blockInfo) {
     if (editor !is null && editor.PickedBlock !is null && editor.PickedBlock.BlockInfo.Name == blockInfo.Name) {
-        log("Block found! Confirming selection.", LogLevel::Info, 261, "FindBlock");
+        log("Block found! Confirming selection.", LogLevel::Info, 58, "CheckAndClickBlock");
         mouse.Click();
         return true;
     }
@@ -163,7 +163,7 @@ void FindBlock(CGameCtnEditorCommon@ editor, CGameCtnBlockInfo@ blockInfo, int2 
         }
 
         if (!blockFound && (editor.PickedBlock is null || editor.PickedBlock.BlockInfo.Name != blockInfo.Name)) {
-            log("Unable to find the block, requesting manual selection.", LogLevel::Error, 309, "FindBlock");
+            log("Unable to find the block, requesting manual selection.", LogLevel::Error, 166, "FindBlock");
             manualSelectionNeeded = true;
             NotifyError("Unable to find the block, please select it manually.");
         }

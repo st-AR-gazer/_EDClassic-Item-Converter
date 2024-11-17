@@ -92,7 +92,7 @@ namespace BlockToBlock_Links {
 
             if (!IO::FileExists(fullBlockSaveLocation)) {
                 print("Converting and saving block: " + block.Name);
-                log("There are " + utils.BlocksLeftToConvert() + " blocks left to convert.", LogLevel::InfoG, 33, "ConversionPreparation");
+                log("There are " + utils.BlocksLeftToConvert() + " blocks left to convert.", LogLevel::InfoG, 95, "ProcessIndexedBlocks");
                 conv.ConvertBlockToBlock(block, blockSaveLocation);
             } else {
                 print("Block already exists, skipping: " + block.Name);
@@ -109,7 +109,7 @@ namespace BlockToBlock_Links {
         // int2 button_exitMesh = int2(30, 1050);
 
         void ConvertBlockToBlock(CGameCtnBlockInfo@ blockInfo, const string &in blockSaveLocation) {
-            log("Converting block to block.", LogLevel::Info, 110, "ConvertBlockToBlock");
+            log("Converting block to block.", LogLevel::Info, 112, "ConvertBlockToBlock");
 
             CGameCtnApp@ app = GetApp();
             CGameCtnEditorCommon@ editor = cast<CGameCtnEditorCommon@>(app.Editor);
@@ -130,7 +130,7 @@ namespace BlockToBlock_Links {
             yield(15);
 
             int nBlocks = pmt.Blocks.Length;
-            log("Starting to place the block: " + blockInfo.Name, LogLevel::Info, 131, "ConvertBlockToBlock");
+            log("Starting to place the block: " + blockInfo.Name, LogLevel::Info, 133, "ConvertBlockToBlock");
             print("-------------------- " + blockInfo.Name);
             while (pmt.Blocks.Length == uint(nBlocks)) {
                 mouse.Click();
@@ -153,31 +153,31 @@ namespace BlockToBlock_Links {
             yield(15);
 
             // For the same reason as above, we don't need to add a mesh or icon, in this case they only slow down the process with unnessesary steps x.
-            // log("Adding mesh to block.", LogLevel::Info, 153, "ConvertBlockToBlock");
+            // log("Adding mesh to block.", LogLevel::Info, 156, "ConvertBlockToBlock");
             // mouse.Move(button_addMesh);
             // mouse.Click();
             
             // yield(15);
 
-            // log("Exiting mesh modeler mode.", LogLevel::Info, 159, "ConvertBlockToBlock");
+            // log("Exiting mesh modeler mode.", LogLevel::Info, 162, "ConvertBlockToBlock");
             // mouse.Move(button_exitMesh);
             // mouse.Click();
 
             // yield(15);
 
-            // log("Clicking the button to set the icon.", LogLevel::Info, 165, "ConvertBlockToBlock");
+            // log("Clicking the button to set the icon.", LogLevel::Info, 168, "ConvertBlockToBlock");
             // mouse.Move(button_Icon);
             // mouse.Click();
 
             // yield(15);
 
-            // log("Clicking the button to set the direction icon.", LogLevel::Info, 171, "ConvertBlockToBlock");
+            // log("Clicking the button to set the direction icon.", LogLevel::Info, 174, "ConvertBlockToBlock");
             // mouse.Move(button_DirectionIcon);
             // mouse.Click();
 
             // yield(15);
 
-            log("Saving block to: " + blockSaveLocation, LogLevel::Info, 177, "ConvertBlockToBlock");
+            log("Saving block to: " + blockSaveLocation, LogLevel::Info, 180, "ConvertBlockToBlock");
             CGameEditorItem@ editorItem = cast<CGameEditorItem>(app.Editor);
             yield(15);
 

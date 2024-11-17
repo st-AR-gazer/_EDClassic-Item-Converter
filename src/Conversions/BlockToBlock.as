@@ -91,7 +91,7 @@ namespace BlockToBlock {
 
             if (!IO::FileExists(fullBlockSaveLocation)) {
                 print("Converting and saving block: " + block.Name);
-                log("There are " + utils.BlocksLeftToConvert() + " blocks left to convert.", LogLevel::InfoG, 33, "ConversionPreparation");
+                log("There are " + utils.BlocksLeftToConvert() + " blocks left to convert.", LogLevel::InfoG, 94, "ProcessIndexedBlocks");
                 conv.ConvertBlockToBlock(block, blockSaveLocation);
             } else {
                 print("Block already exists, skipping: " + block.Name);

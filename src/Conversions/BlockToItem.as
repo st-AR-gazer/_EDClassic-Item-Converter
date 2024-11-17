@@ -11,7 +11,7 @@ namespace BlockToItem {
     dictionary completedBlocks;
 
     void Init() {
-        log("Initializing BlockToItem.", LogLevel::Info, 9, "Init");
+        log("Initializing BlockToItem.", LogLevel::Info, 14, "Init");
 
         @utils = Utils();
         @conv = Conversion();
@@ -28,7 +28,7 @@ namespace BlockToItem {
     }
 
     void ConversionPreparation() {
-        log("Converting block to item.", LogLevel::Info, 18, "ConversionPreparation");
+        log("Converting block to item.", LogLevel::Info, 31, "ConversionPreparation");
         
         CGameCtnApp@ app = GetApp();
         CGameCtnEditorCommon@ editor = cast<CGameCtnEditorCommon@>(app.Editor);
@@ -51,7 +51,7 @@ namespace BlockToItem {
             } else {
                 auto ana = cast<CGameCtnArticleNodeArticle@>(node);
                 if (ana.Article is null || ana.Article.IdName.ToLower().EndsWith("customblock")) {
-                    log("Skipping block " + ana.Name + " because it's a custom block.", LogLevel::Info, 38, "ExploreNode");
+                    log("Skipping block " + ana.Name + " because it's a custom block.", LogLevel::Info, 54, "ExploreNode");
                     continue;
                 }
 
@@ -61,12 +61,12 @@ namespace BlockToItem {
                 }
 
                 if (string(block.Name).ToLower().Contains("water")) {
-                    log("Water cannot be converted to a custom block/item. Skipping.", LogLevel::Info, 59, "ExploreNode");
+                    log("Water cannot be converted to a custom block/item. Skipping.", LogLevel::Info, 64, "ExploreNode");
                     continue;
                 }
 
                 if (utils.IsBlacklisted(block.Name)) {
-                    log("Block " + block.Name + " is blacklisted. Skipping.", LogLevel::Info, 64, "ExploreNode");
+                    log("Block " + block.Name + " is blacklisted. Skipping.", LogLevel::Info, 69, "ExploreNode");
                     continue;
                 }
 
@@ -90,10 +90,10 @@ namespace BlockToItem {
             string fullItemSaveLocation = IO::FromUserGameFolder("Items/" + itemSaveLocation);
 
             if (!IO::FileExists(fullItemSaveLocation)) {
-                log("Converting and saving block to item: " + block.Name, LogLevel::Info, 135, "ProcessIndexedBlocks");
+                log("Converting and saving block to item: " + block.Name, LogLevel::Info, 93, "ProcessIndexedBlocks");
                 conv.ConvertBlockToItem(block, itemSaveLocation);
             } else {
-                log("Item already exists, skipping: " + block.Name, LogLevel::Info, 138, "ProcessIndexedBlocks");
+                log("Item already exists, skipping: " + block.Name, LogLevel::Info, 96, "ProcessIndexedBlocks");
             }
         }
     }
@@ -103,7 +103,7 @@ namespace BlockToItem {
         int2 button_DirectionIcon = int2(985, 550);
 
         void ConvertBlockToItem(CGameCtnBlockInfo@ blockInfo, const string &in itemSaveLocation) {
-            log("Converting block to item.", LogLevel::Info, 82, "ConvertBlockToItem");
+            log("Converting block to item.", LogLevel::Info, 106, "ConvertBlockToItem");
 
             auto app = GetApp();
             auto editor = cast<CGameCtnEditorCommon@>(app.Editor);
@@ -120,7 +120,7 @@ namespace BlockToItem {
             yield();
 
             int nBlocks = pmt.Blocks.Length;
-            log("Starting to place the block: " + blockInfo.Name, LogLevel::Info, 103, "ConvertBlockToItem");
+            log("Starting to place the block: " + blockInfo.Name, LogLevel::Info, 123, "ConvertBlockToItem");
             while (pmt.Blocks.Length == uint(nBlocks)) {
                 mouse.Click();
                 yield();
@@ -135,19 +135,19 @@ namespace BlockToItem {
                 yield(5);
             }
 
-            log("Clicking the button to set the icon.", LogLevel::Info, 123, "ConvertBlockToItem");
+            log("Clicking the button to set the icon.", LogLevel::Info, 138, "ConvertBlockToItem");
             mouse.Move(button_Icon);
             mouse.Click();
 
             yield();
 
-            log("Clicking the button to set the direction icon.", LogLevel::Info, 129, "ConvertBlockToItem");
+            log("Clicking the button to set the direction icon.", LogLevel::Info, 144, "ConvertBlockToItem");
             mouse.Move(button_DirectionIcon);
             mouse.Click();
 
             yield();
 
-            log("Saving item to: " + itemSaveLocation, LogLevel::Info, 135, "ConvertBlockToItem");
+            log("Saving item to: " + itemSaveLocation, LogLevel::Info, 150, "ConvertBlockToItem");
             CGameEditorItem@ editorItem = cast<CGameEditorItem>(app.Editor);
             editorItem.IdName = blockInfo.Name;
             editorItem.PlacementParamGridHorizontalSize = 32;
